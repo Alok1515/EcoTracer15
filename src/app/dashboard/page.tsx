@@ -2,49 +2,43 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  AreaChart,
-  Area
-} from "recharts";
-import { 
-  TrendingDown, 
-  TrendingUp, 
-  Zap, 
+  Settings, 
+  Camera, 
+  Package, 
   Car, 
+  Zap, 
+  Flame, 
+  Plane, 
   Utensils, 
-  Plus, 
-  Calendar,
-  ChevronRight,
-  Leaf
+  User, 
+  Users, 
+  Trophy, 
+  Sparkles,
+  Info,
+  Loader2,
+  CheckCircle2
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-
-const MOCK_CHART_DATA = [
-  { name: "Mon", value: 12.5 },
-  { name: "Tue", value: 15.2 },
-  { name: "Wed", value: 10.8 },
-  { name: "Thu", value: 18.4 },
-  { name: "Fri", value: 14.1 },
-  { name: "Sat", value: 8.9 },
-  { name: "Sun", value: 7.5 },
-];
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [stats, setStats] = useState({ today: 0, monthly: 0 });
-  const [activities, setActivities] = useState([]);
+  const [stats, setStats] = useState({ today: 0, average: 19.8, top: 1.3 });
   const [user, setUser] = useState<any>(null);
+  const [activeCategory, setActiveCategory] = useState("Transportation");
   const [isLoading, setIsLoading] = useState(true);
+  const [isLogging, setIsLogging] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [amount, setAmount] = useState("");
+  const [vehicleType, setVehicleType] = useState("gasoline");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -58,191 +52,303 @@ export default function DashboardPage() {
       setUser(JSON.parse(storedUser));
     }
 
-    const fetchData = async () => {
-      try {
-        const headers = { "Authorization": `Bearer ${token}` };
-        
-        // Fetch Today's Emission
-        const todayRes = await fetch("http://localhost:8080/api/emission/today", { headers });
-        const todayData = await todayRes.json();
-        
-        // Fetch Monthly Emission
-        const monthlyRes = await fetch("http://localhost:8080/api/emission/monthly", { headers });
-        const monthlyData = await monthlyRes.json();
-        
-        // Fetch Recent Activities
-        const activitiesRes = await fetch("http://localhost:8080/api/activity/user", { headers });
-        const activitiesData = await activitiesRes.json();
-
-        setStats({ today: todayData, monthly: monthlyData });
-        setActivities(activitiesData.slice(0, 5)); // Show last 5
-      } catch (err) {
-        console.error("Failed to fetch dashboard data", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
   }, [router]);
 
+  const fetchData = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const headers = { "Authorization": `Bearer ${token}` };
+      const todayRes = await fetch("http://localhost:8080/api/emission/today", { headers });
+      const todayData = await todayRes.json();
+      setStats(prev => ({ ...prev, today: todayData }));
+    } catch (err) {
+      console.error("Failed to fetch dashboard data", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddEmission = async () => {
+    if (!amount) return;
+    setIsLogging(true);
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    // Map categories to backend ActivityType
+    const categoryMap: Record<string, string> = {
+      "Transportation": "TRAVEL",
+      "Electricity": "ELECTRICITY",
+      "Heating": "ELECTRICITY",
+      "Flights": "TRAVEL",
+      "Food": "FOOD"
+    };
+
+    const description = `${activeCategory}${activeCategory === 'Transportation' ? ` (${vehicleType})` : ''}`;
+
+    try {
+      const response = await fetch("http://localhost:8080/api/activity/add", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          category: categoryMap[activeCategory] || "TRAVEL",
+          description: description,
+          amount: parseFloat(amount),
+        }),
+      });
+
+      if (response.ok) {
+        setIsSuccess(true);
+        setAmount("");
+        setTimeout(() => {
+          setIsSuccess(false);
+          fetchData();
+        }, 2000);
+      }
+    } catch (err) {
+      console.error("Failed to log activity", err);
+    } finally {
+      setIsLogging(false);
+    }
+  };
+
+  const getUnit = () => {
+    switch (activeCategory) {
+      case "Transportation":
+      case "Flights":
+        return "km";
+      case "Electricity":
+      case "Heating":
+        return "kWh";
+      case "Food":
+        return "meals";
+      default:
+        return "units";
+    }
+  };
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Welcome back, {user?.name || "User"}
-          </h1>
-          <div className="flex items-center gap-2 mt-1">
-            <p className="text-zinc-500 dark:text-zinc-400">Track your environmental impact in real-time.</p>
-            {user?.userType && (
-              <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 capitalize">
-                {user.userType.toLowerCase()} Account
-              </Badge>
-            )}
-          </div>
+    <div className="min-h-screen bg-black text-zinc-300 p-6 font-sans">
+      {/* Top Navigation Bar */}
+      <div className="max-w-7xl mx-auto mb-8">
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-1 flex items-center justify-between">
+          <button className="flex-1 py-2 px-4 rounded-xl bg-zinc-800 text-white font-medium text-sm transition-all">Overview</button>
+          <button className="flex-1 py-2 px-4 rounded-xl hover:bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 font-medium text-sm transition-all">Leaderboard</button>
+          <button className="flex-1 py-2 px-4 rounded-xl hover:bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 font-medium text-sm transition-all">Insights</button>
+          <button className="flex-1 py-2 px-4 rounded-xl hover:bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 font-medium text-sm transition-all">AI Assistant</button>
         </div>
-        <Button 
-          onClick={() => router.push("/dashboard/add")}
-          className="rounded-full bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 shadow-lg shadow-emerald-600/20"
-        >
-          <Plus className="mr-2 h-4 w-4" /> Log Activity
-        </Button>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        {[
-          { 
-            title: "Today's Emission", 
-            value: `${stats.today.toFixed(1)} kg`, 
-            desc: "CO2 Equivalent", 
-            icon: Leaf,
-            color: "text-emerald-600",
-            bg: "bg-emerald-50 dark:bg-emerald-950/30"
-          },
-          { 
-            title: "Monthly Total", 
-            value: `${stats.monthly.toFixed(1)} kg`, 
-            desc: "Current Month", 
-            icon: Calendar,
-            color: "text-blue-600",
-            bg: "bg-blue-50 dark:bg-blue-950/30"
-          },
-          { 
-            title: "Average Daily", 
-            value: "12.4 kg", 
-            desc: "-2.4% from last week", 
-            icon: TrendingDown,
-            color: "text-orange-600",
-            bg: "bg-orange-50 dark:bg-orange-950/30"
-          },
-          { 
-            title: "Global Rank", 
-            value: "Top 15%", 
-            desc: "Among active users", 
-            icon: Globe,
-            color: "text-purple-600",
-            bg: "bg-purple-50 dark:bg-purple-950/30"
-          },
-        ].map((stat, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-          >
-            <Card className="border-emerald-50 dark:border-zinc-800">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-2">
-                  <div className={`p-2 rounded-lg ${stat.bg}`}>
-                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Quick Entry Section */}
+        <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2rem] overflow-hidden relative">
+          <CardContent className="p-8">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-white mb-1">Quick Entry</h2>
+              <p className="text-sm text-zinc-500">Log your carbon emissions</p>
+            </div>
+
+            <Tabs defaultValue="manual" className="w-full mb-8">
+              <TabsList className="bg-zinc-950/50 border border-zinc-800 p-1 rounded-xl w-full h-12">
+                <TabsTrigger value="manual" className="flex-1 rounded-lg data-[state=active]:bg-zinc-800 data-[state=active]:text-white">
+                  <Settings className="w-4 h-4 mr-2" /> Manual
+                </TabsTrigger>
+                <TabsTrigger value="image" className="flex-1 rounded-lg data-[state=active]:bg-zinc-800 data-[state=active]:text-white">
+                  <Camera className="w-4 h-4 mr-2" /> Image
+                </TabsTrigger>
+                <TabsTrigger value="product" className="flex-1 rounded-lg data-[state=active]:bg-zinc-800 data-[state=active]:text-white">
+                  <Package className="w-4 h-4 mr-2" /> Product LCA
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="manual" className="mt-6 space-y-8">
+                <div className="flex items-center justify-between bg-zinc-950/30 border border-zinc-800/50 p-4 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-zinc-800 rounded-lg">
+                      <Settings className="w-4 h-4 text-zinc-400" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-white">Precision Mode</div>
+                      <div className="text-xs text-zinc-500">Recommended</div>
+                    </div>
                   </div>
-                  {i === 2 && <Badge variant="outline" className="text-emerald-600 border-emerald-200">Efficient</Badge>}
+                  <Switch defaultChecked />
                 </div>
-                <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{stat.value}</div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{stat.desc}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Main Chart */}
-        <Card className="lg:col-span-2 border-emerald-50 dark:border-zinc-800">
-          <CardHeader>
-            <CardTitle>Emission Trends</CardTitle>
-            <CardDescription>Daily CO2 output for the past week</CardDescription>
-          </CardHeader>
-          <CardContent className="h-[350px] w-full pt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={MOCK_CHART_DATA}>
-                <defs>
-                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#71717a' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#71717a' }} />
-                <Tooltip 
-                  contentStyle={{ 
-                    borderRadius: '12px', 
-                    border: 'none', 
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' 
-                  }} 
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#10b981" 
-                  strokeWidth={3}
-                  fillOpacity={1} 
-                  fill="url(#colorValue)" 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+                <div>
+                  <label className="text-sm font-medium text-zinc-400 mb-4 block">Activity Category</label>
+                  <div className="grid grid-cols-5 gap-3">
+                    {[
+                      { name: "Transportation", icon: Car },
+                      { name: "Electricity", icon: Zap },
+                      { name: "Heating", icon: Flame },
+                      { name: "Flights", icon: Plane },
+                      { name: "Food", icon: Utensils }
+                    ].map((cat) => (
+                      <button 
+                        key={cat.name}
+                        onClick={() => setActiveCategory(cat.name)}
+                        className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all ${
+                          activeCategory === cat.name 
+                          ? "bg-white border-white text-black" 
+                          : "bg-zinc-950/50 border-zinc-800 text-zinc-500 hover:border-zinc-700"
+                        }`}
+                      >
+                        <cat.icon className="w-5 h-5" />
+                        <span className="text-[10px] font-medium">{cat.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {activeCategory === "Transportation" && (
+                    <div className="space-y-2">
+                      <Label className="text-sm text-zinc-400">Vehicle Type</Label>
+                      <Select value={vehicleType} onValueChange={setVehicleType}>
+                        <SelectTrigger className="bg-zinc-950/50 border-zinc-800 h-12 rounded-xl text-zinc-300 focus:ring-0">
+                          <SelectValue placeholder="Select vehicle type" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
+                          <SelectItem value="gasoline">Car (Gasoline)</SelectItem>
+                          <SelectItem value="electric">Car (Electric)</SelectItem>
+                          <SelectItem value="hybrid">Car (Hybrid)</SelectItem>
+                          <SelectItem value="bus">Public Bus</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label className="text-sm text-zinc-400">Value</Label>
+                    <div className="relative">
+                      <Input 
+                        placeholder="Enter value" 
+                        type="number"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        className="bg-zinc-950/50 border-zinc-800 h-12 rounded-xl pr-16 text-zinc-300 placeholder:text-zinc-600 focus:ring-0 focus:border-zinc-700"
+                      />
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-500">{getUnit()}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleAddEmission}
+                  disabled={isLogging || !amount}
+                  className="w-full h-14 bg-white hover:bg-zinc-200 text-black font-semibold rounded-xl text-base transition-all disabled:opacity-50"
+                >
+                  {isLogging ? <Loader2 className="w-5 h-5 animate-spin" /> : "Add Emission"}
+                </Button>
+              </TabsContent>
+            </Tabs>
+
+            <AnimatePresence>
+              {isSuccess && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute inset-x-8 bottom-8 flex items-center justify-center bg-emerald-500 text-white py-3 rounded-xl gap-2 z-10"
+                >
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span className="font-medium">Emission logged successfully!</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </CardContent>
         </Card>
 
-        {/* Recent Activities */}
-        <Card className="border-emerald-50 dark:border-zinc-800">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Recent Impact</CardTitle>
-              <CardDescription>Your latest tracked activities</CardDescription>
+        {/* Impact Comparison Section */}
+        <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2rem] overflow-hidden">
+          <CardContent className="p-8">
+            <div className="mb-10">
+              <h2 className="text-xl font-semibold text-white mb-1">Compare Your Impact</h2>
+              <p className="text-sm text-zinc-500">See how you stack up against others</p>
             </div>
-            <Button variant="ghost" size="sm" className="text-emerald-600">View All</Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {activities.length > 0 ? activities.map((activity: any, i) => (
-                <div key={activity.id} className="flex items-center gap-4">
-                  <div className={`p-2 rounded-full ${
-                    activity.category === 'TRAVEL' ? 'bg-blue-50 text-blue-600' :
-                    activity.category === 'ELECTRICITY' ? 'bg-yellow-50 text-yellow-600' :
-                    'bg-orange-50 text-orange-600'
-                  }`}>
-                    {activity.category === 'TRAVEL' ? <Car className="h-4 w-4" /> :
-                     activity.category === 'ELECTRICITY' ? <Zap className="h-4 w-4" /> :
-                     <Utensils className="h-4 w-4" />}
+
+            <div className="space-y-10">
+              {/* Your Emissions */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400">
+                      <User className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-white">Your Emissions</div>
+                      <div className="text-xs text-zinc-500">{stats.today.toFixed(1)} kg CO2</div>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50 truncate">{activity.description}</p>
-                    <p className="text-xs text-zinc-500">{new Date(activity.timestamp).toLocaleDateString()}</p>
-                  </div>
-                  <div className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
-                    {activity.co2Emission.toFixed(1)}kg
+                  <div className="text-sm font-semibold text-emerald-500">
+                    {stats.today < stats.average ? `${Math.round((1 - stats.today / stats.average) * 100)}% below average` : "Above average"}
                   </div>
                 </div>
-              )) : (
-                <div className="py-8 text-center">
-                  <Leaf className="h-12 w-12 text-emerald-100 mx-auto mb-2" />
-                  <p className="text-sm text-zinc-500">No activities logged yet.</p>
+                <div className="relative h-2 bg-zinc-800 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min((stats.today / stats.average) * 100, 100)}%` }}
+                    className="absolute h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+                  />
                 </div>
-              )}
+              </div>
+
+              {/* Community Average */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-zinc-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-white">Community Average</div>
+                    <div className="text-xs text-zinc-500">{stats.average.toFixed(1)} kg CO2</div>
+                  </div>
+                </div>
+                <div className="relative h-2 bg-zinc-800 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: "85%" }}
+                    className="absolute h-full bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                  />
+                </div>
+              </div>
+
+              {/* Top Performer */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+                    <Trophy className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-white">Top Performer</div>
+                    <div className="text-xs text-zinc-500">{stats.top.toFixed(1)} kg CO2</div>
+                  </div>
+                </div>
+                <div className="relative h-2 bg-zinc-800 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(stats.top / stats.average) * 100}%` }}
+                    className="absolute h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                  />
+                </div>
+              </div>
+
+              {/* Encouragement Box */}
+              <div className="bg-zinc-950/50 border border-zinc-800 p-5 rounded-2xl flex gap-4 mt-8">
+                <Sparkles className="w-6 h-6 text-amber-500 flex-shrink-0" />
+                <p className="text-sm text-zinc-400 leading-relaxed">
+                  {stats.today < stats.average 
+                    ? "Great job! You're doing better than average! Keep up the good work and inspire others."
+                    : "You're slightly above average today. Try reducing travel or electricity usage to lower your impact!"}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -250,20 +356,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-const Globe = ({ className }: { className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-    <path d="M2 12h20" />
-  </svg>
-);
