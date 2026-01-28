@@ -145,6 +145,80 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Stats Cards Section */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <Card className="bg-zinc-900/40 border-zinc-800 rounded-2xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-zinc-400">Net Emissions Balance</span>
+              <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
+                <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M7 17.5c0 2.5 2 4.5 5 4.5s5-2 5-4.5c0-3-2.5-5-5-8-2.5 3-5 5-5 8z"/>
+                </svg>
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-white mb-1">{stats.today.toFixed(1)} kg</div>
+            <div className="text-xs text-zinc-500">After 21.0 kg offset</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-zinc-900/40 border-zinc-800 rounded-2xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-zinc-400">Total Activities</span>
+              <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
+                <span className="text-zinc-400 text-lg">+</span>
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-white mb-1">22.3 kg</div>
+            <div className="text-xs text-zinc-500">Total logged CO2</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-zinc-900/40 border-zinc-800 rounded-2xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-zinc-400">Monthly Change</span>
+              <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
+                <svg className="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M7 17l5-5 5 5M7 7l5 5 5-5"/>
+                </svg>
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-red-500 mb-1">+133900.0%</div>
+            <div className="text-xs text-zinc-500">vs last month</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-zinc-900/40 border-zinc-800 rounded-2xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-zinc-400">Your Rank</span>
+              <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
+                <Settings className="w-4 h-4 text-zinc-400" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-white mb-1">#11</div>
+            <div className="text-xs text-zinc-500">on leaderboard</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-zinc-900/40 border-zinc-800 rounded-2xl md:col-span-1">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-zinc-400">Trees Needed</span>
+              <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
+                <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M7 17.5c0 2.5 2 4.5 5 4.5s5-2 5-4.5c0-3-2.5-5-5-8-2.5 3-5 5-5 8z"/>
+                </svg>
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-white mb-1">0</div>
+            <div className="text-xs text-zinc-500">100% offset (1 planted)</div>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Quick Entry Section */}
         <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2rem] overflow-hidden relative">
