@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Leaf, LogIn, UserPlus, LogOut, LayoutDashboard, User } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Navbar() {
   const router = useRouter();
@@ -46,8 +47,9 @@ export function Navbar() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-4">
-          {isLoggedIn ? (
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            {isLoggedIn ? (
             <>
               <Link
                 href="/dashboard"
