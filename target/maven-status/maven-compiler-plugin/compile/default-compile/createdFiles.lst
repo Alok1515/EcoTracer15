@@ -1,0 +1,5 @@
+com/carbontracker/security/JwtUtils.class
+com/carbontracker/model/User.class
+com/carbontracker/security/JwtAuthenticationFilter.class
+com/carbontracker/config/SecurityConfig.class
+com/carbontracker/repository/UserRepository.class
