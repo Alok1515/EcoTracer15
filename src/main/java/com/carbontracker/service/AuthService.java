@@ -38,6 +38,7 @@ public class AuthService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .userType(request.getUserType())
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -51,6 +52,7 @@ public class AuthService {
                 .token(jwtToken)
                 .name(user.getName())
                 .email(user.getEmail())
+                .userType(user.getUserType())
                 .build();
     }
 
@@ -70,6 +72,7 @@ public class AuthService {
                 .token(jwtToken)
                 .name(user.getName())
                 .email(user.getEmail())
+                .userType(user.getUserType())
                 .build();
     }
 }

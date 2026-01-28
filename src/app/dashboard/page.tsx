@@ -43,13 +43,19 @@ export default function DashboardPage() {
   const router = useRouter();
   const [stats, setStats] = useState({ today: 0, monthly: 0 });
   const [activities, setActivities] = useState([]);
+  const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
     if (!token) {
       router.push("/login");
       return;
+    }
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
 
     const fetchData = async () => {
@@ -84,8 +90,17 @@ export default function DashboardPage() {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Dashboard</h1>
-          <p className="text-zinc-500 dark:text-zinc-400">Track your environmental impact in real-time.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            Welcome back, {user?.name || "User"}
+          </h1>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-zinc-500 dark:text-zinc-400">Track your environmental impact in real-time.</p>
+            {user?.userType && (
+              <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 capitalize">
+                {user.userType.toLowerCase()} Account
+              </Badge>
+            )}
+          </div>
         </div>
         <Button 
           onClick={() => router.push("/dashboard/add")}

@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Leaf, User, Mail, Lock, Loader2 } from "lucide-react";
+import { Leaf, User, Mail, Lock, Loader2, Building2 } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -13,6 +13,7 @@ export default function RegisterPage() {
       name: "",
       email: "",
       password: "",
+      userType: "INDIVIDUAL",
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -99,11 +100,27 @@ export default function RegisterPage() {
                 required
                 placeholder="Password"
                 className="block w-full rounded-xl border-0 py-2.5 pl-10 text-zinc-900 ring-1 ring-inset ring-zinc-300 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-emerald-600 dark:bg-zinc-800 dark:text-white dark:ring-zinc-700 sm:text-sm sm:leading-6"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              />
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                />
+              </div>
+              <div className="relative">
+                <Building2 className="absolute left-3 top-3 h-5 w-5 text-zinc-400" />
+                <select
+                  id="userType"
+                  name="userType"
+                  required
+                  className="block w-full rounded-xl border-0 py-2.5 pl-10 text-zinc-900 ring-1 ring-inset ring-zinc-300 focus:ring-2 focus:ring-inset focus:ring-emerald-600 dark:bg-zinc-800 dark:text-white dark:ring-zinc-700 sm:text-sm sm:leading-6 appearance-none bg-white"
+                  value={formData.userType}
+                  onChange={(e) => setFormData({ ...formData, userType: e.target.value })}
+                >
+                  <option value="INDIVIDUAL">Individual</option>
+                  <option value="CITY">City</option>
+                  <option value="COMPANY">Company</option>
+                </select>
+              </div>
             </div>
-          </div>
+
 
           <button
             type="submit"

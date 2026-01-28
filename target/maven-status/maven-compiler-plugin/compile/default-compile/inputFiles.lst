@@ -1,3 +1,5 @@
+/Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/model/UserType.java
+/Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/config/DataInitializer.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/repository/UserRepository.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/dto/AuthResponse.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/security/JwtAuthenticationFilter.java

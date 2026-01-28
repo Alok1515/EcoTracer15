@@ -31,6 +31,7 @@ public class ActivityService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Emission factors are based on IPCC and UK DEFRA publicly available datasets.
         Double factor = emissionFactorService.getEmissionFactor(dto.getType());
         Double emission = dto.getValue() * factor;
 

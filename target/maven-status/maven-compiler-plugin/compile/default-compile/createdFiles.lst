@@ -2,6 +2,7 @@ com/carbontracker/dto/RegisterRequest.class
 com/carbontracker/model/User.class
 com/carbontracker/service/EmissionFactorService.class
 com/carbontracker/controller/ActivityController.class
+com/carbontracker/model/UserType.class
 com/carbontracker/service/AuthService.class
 com/carbontracker/controller/EmissionController.class
 com/carbontracker/model/Activity$ActivityBuilder.class
@@ -26,3 +27,4 @@ com/carbontracker/model/Activity$ActivityType.class
 com/carbontracker/dto/AuthResponse.class
 com/carbontracker/repository/EmissionFactorRepository.class
 com/carbontracker/dto/AuthResponse$AuthResponseBuilder.class
+com/carbontracker/config/DataInitializer.class
