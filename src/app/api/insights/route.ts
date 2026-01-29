@@ -15,40 +15,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const prompt = `
-      You are a Sustainability Expert AI. Analyze the following carbon footprint data for a user and provide 3-4 personalized, actionable insights to help them reduce their environmental impact.
-      
-      User: ${user?.name || "User"}
-      
-      Current Stats:
-      - Total Emissions: ${stats.total.toFixed(2)} kg CO2e
-      - Today's Emissions: ${stats.today.toFixed(2)} kg CO2e
-      - Net Balance: ${stats.netBalance.toFixed(2)} kg CO2e
-      - Trees Planted: ${stats.treesPlanted}
-      - Trees Needed: ${stats.treesNeeded}
-      - Monthly Change: ${stats.monthlyChange.toFixed(1)}%
-      
-      Emissions by Category:
-      ${JSON.stringify(stats.categoryEmissions, null, 2)}
-      
-      Recent Activities:
-      ${activities.slice(0, 10).map((a: any) => `- ${a.type}: ${a.value} units (${a.description}) on ${new Date(a.date).toLocaleDateString()}`).join("\n")}
-      
-      Please provide the response in a clean JSON format with the following structure:
-      {
-        "summary": "A brief overview of their current standing",
-        "insights": [
-          {
-            "title": "Insight Title",
-            "description": "Personalized description based on their data",
-            "impact": "High/Medium/Low",
-            "category": "Travel/Food/Energy/etc"
-          }
-        ],
-        "recommendation": "One key focus area for next week"
-      }
-      Return ONLY the JSON.
-    `;
+      const prompt = `
+        You are a Sustainability Expert AI. Analyze the following carbon footprint data for a user and provide 3-4 personalized, actionable insights to help them reduce their environmental impact.
+        
+        User: ${user?.name || "User"}
+        
+        Current Stats:
+        - Net Emissions: ${stats.netBalance.toFixed(2)} kg CO2e (Primary focus: Total emissions minus offsets)
+        - Today's Emissions: ${stats.today.toFixed(2)} kg CO2e
+        - Trees Planted: ${stats.treesPlanted}
+        - Trees Needed: ${stats.treesNeeded}
+        - Monthly Change: ${stats.monthlyChange.toFixed(1)}%
+        
+        Emissions by Category:
+        ${JSON.stringify(stats.categoryEmissions, null, 2)}
+        
+        Recent Activities:
+        ${activities.slice(0, 10).map((a: any) => `- ${a.type}: ${a.value} units (${a.description}) on ${new Date(a.date).toLocaleDateString()}`).join("\n")}
+        
+        Please provide the response in a clean JSON format with the following structure:
+        {
+          "summary": "A brief overview of their current standing focused on net emissions",
+          "insights": [
+            {
+              "title": "Insight Title",
+              "description": "Personalized description based on their data",
+              "impact": "High/Medium/Low",
+              "category": "Travel/Food/Energy/etc"
+            }
+          ],
+          "recommendation": "One key focus area for next week"
+        }
+        Return ONLY the JSON.
+      `;
 
       const response = await fetch(apiUrl, {
         method: "POST",

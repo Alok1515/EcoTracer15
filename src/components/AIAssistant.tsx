@@ -18,17 +18,17 @@ import { Card, CardContent } from "@/components/ui/card";
 
 interface Message {
   id: string;
-  role: "assistant" | "user";
+  role: "assistant" | "user" | "system";
   content: string;
   timestamp: string;
 }
 
-export function AIAssistant() {
+export function AIAssistant({ stats, user }: { stats?: any, user?: any }) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       role: "assistant",
-      content: "Hi! I'm your Carbon Assistant powered by AI. I can help you reduce your carbon footprint, analyze emission data, and provide personalized tips. How can I help you today?",
+      content: `Hi${user?.name ? ' ' + user.name : ''}! I'm your Carbon Assistant powered by AI. I see your current net emission is ${stats?.netBalance?.toFixed(2) || '0.00'} kg CO2e. How can I help you reduce it today?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
     }
   ]);
@@ -65,6 +65,13 @@ export function AIAssistant() {
 
     try {
       const token = localStorage.getItem("token");
+      
+      // Inject user context as a system message if stats are available
+      const contextMessage = {
+        role: "system",
+        content: `You are assisting ${user?.name || 'the user'}. Their current net emissions balance is ${stats?.netBalance?.toFixed(2) || '0.00'} kg CO2e. This is the primary metric (Total emissions - offsets). Always refer to this as 'Net Emissions' and prioritize it over lifetime emissions.`
+      };
+
       const response = await fetch("http://localhost:8080/api/chat", {
         method: "POST",
         headers: { 
@@ -72,7 +79,7 @@ export function AIAssistant() {
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          messages: [...messages, userMessage].map(m => ({
+          messages: [contextMessage, ...messages, userMessage].map(m => ({
             role: m.role,
             content: m.content
           }))
