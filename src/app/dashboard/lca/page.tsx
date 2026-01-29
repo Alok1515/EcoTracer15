@@ -30,9 +30,11 @@ import {
 
 const COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6"];
 
-export default function LcaPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  export default function LcaPage() {
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [result, setResult] = useState<any>(null);
   const [formData, setFormData] = useState({
     materialType: "PLASTIC",
     materialKg: 2,
@@ -43,17 +45,22 @@ export default function LcaPage() {
     disposalType: "LANDFILL",
   });
 
-  const handleCalculate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setResult(null);
+    const handleCalculate = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setIsLoading(true);
+      setResult(null);
 
-    try {
-      const response = await fetch("http://localhost:8080/api/lca/calculate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const token = localStorage.getItem("token");
+
+      try {
+        const response = await fetch("http://localhost:8080/api/lca/calculate", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(formData),
+        });
 
       if (response.ok) {
         const data = await response.json();
@@ -63,12 +70,44 @@ export default function LcaPage() {
       }
     } catch (err) {
       alert("Error connecting to server.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const chartData = result ? Object.entries(result.breakdown).map(([name, value]) => ({
+    const handleSave = async () => {
+      if (!result) return;
+      setIsSaving(true);
+      const token = localStorage.getItem("token");
+
+      try {
+        const response = await fetch("http://localhost:8080/api/activity/add", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            type: "PRODUCT",
+            description: `LCA: ${formData.materialKg}kg ${formData.materialType.toLowerCase()} product`,
+            value: result.totalEmission,
+          }),
+        });
+
+        if (response.ok) {
+          setIsSuccess(true);
+          setTimeout(() => setIsSuccess(false), 3000);
+        } else {
+          alert("Failed to save activity.");
+        }
+      } catch (err) {
+        alert("Error saving activity.");
+      } finally {
+        setIsSaving(false);
+      }
+    };
+
+    const chartData = result ? Object.entries(result.breakdown).map(([name, value]) => ({
     name: name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
     value
   })) : [];
@@ -229,14 +268,43 @@ export default function LcaPage() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   className="rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
                 >
-                  <div className="text-center">
-                    <p className="text-sm font-medium uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-                      Estimated Carbon Footprint
-                    </p>
-                    <h2 className="mt-2 text-5xl font-black text-emerald-600 dark:text-emerald-400">
-                      {result.totalEmission} <span className="text-2xl font-bold text-zinc-400">kg CO2</span>
-                    </h2>
-                  </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+                        Estimated Carbon Footprint
+                      </p>
+                      <h2 className="mt-2 text-5xl font-black text-emerald-600 dark:text-emerald-400">
+                        {result.totalEmission} <span className="text-2xl font-bold text-zinc-400">kg CO2</span>
+                      </h2>
+                      
+                      <div className="mt-6 flex flex-col gap-3">
+                        <button
+                          onClick={handleSave}
+                          disabled={isSaving || isSuccess}
+                          className={`flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold transition-all active:scale-[0.98] ${
+                            isSuccess 
+                              ? "bg-emerald-500 text-white" 
+                              : "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                          }`}
+                        >
+                          {isSaving ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                          ) : isSuccess ? (
+                            <>
+                              <CheckCircle2 className="h-5 w-5" />
+                              Saved to Activity Log
+                            </>
+                          ) : (
+                            <>
+                              <Package className="h-5 w-5" />
+                              Log This Product Impact
+                            </>
+                          )}
+                        </button>
+                        <p className="text-[10px] text-zinc-500">
+                          Save this calculation to your personal dashboard and contribution history
+                        </p>
+                      </div>
+                    </div>
 
                   <div className="mt-8 h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">

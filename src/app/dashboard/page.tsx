@@ -410,10 +410,16 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto mb-8">
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-1 flex items-center justify-between gap-2">
           <div className="flex flex-1 items-center gap-1">
-            {["Overview", "Leaderboard", "Insights", "AI Assistant", "Settings"].map((view) => (
+            {["Overview", "Leaderboard", "Insights", "AI Assistant", "Product LCA", "Settings"].map((view) => (
               <button 
                 key={view}
-                onClick={() => setActiveView(view)}
+                onClick={() => {
+                  if (view === "Product LCA") {
+                    router.push("/dashboard/lca");
+                  } else {
+                    setActiveView(view);
+                  }
+                }}
                 className={`flex-1 py-2 px-4 rounded-xl font-medium text-sm transition-all ${
                   activeView === view 
                     ? "bg-zinc-800 text-white" 
