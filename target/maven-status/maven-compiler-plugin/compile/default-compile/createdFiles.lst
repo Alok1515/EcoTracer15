@@ -38,6 +38,7 @@ com/carbontracker/repository/LcaRepository.class
 com/carbontracker/dto/LcaResponse.class
 com/carbontracker/dto/RegisterRequest.class
 com/carbontracker/controller/ActivityController.class
+com/carbontracker/config/LcaDataSeeder.class
 com/carbontracker/dto/ActivityDTO.class
 com/carbontracker/service/ChatService$OpenRouterResponse$Choice.class
 com/carbontracker/dto/ActivityResponseDTO$ActivityResponseDTOBuilder.class
