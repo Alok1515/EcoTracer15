@@ -102,7 +102,7 @@ public class ActivityService {
                 .filter(a -> a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
-        return Math.max(0.0, todayEmissions);
+        return todayEmissions;
     }
 
     public Double getMonthlyEmissions() {
@@ -118,7 +118,7 @@ public class ActivityService {
                 .filter(a -> a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
-        return Math.max(0.0, monthlyEmissions);
+        return monthlyEmissions;
     }
 
     public DashboardStatsDTO getDashboardStats() {
