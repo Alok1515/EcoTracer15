@@ -735,7 +735,6 @@ export default function DashboardPage() {
                               value={amount}
                               onChange={(e) => {
                                 setAmount(e.target.value);
-                                setIsProductMode(false);
                               }}
                               className="bg-muted/50 border-border h-12 rounded-xl pr-16 text-foreground placeholder:text-muted-foreground/50 focus:ring-0 focus:border-accent"
                             />
@@ -743,8 +742,8 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        <AnimatePresence>
-                          {getEmissionDetails() && !isProductMode && (
+                          <AnimatePresence>
+                            {getEmissionDetails() && (
                             <motion.div 
                               initial={{ opacity: 0, y: -10 }}
                               animate={{ opacity: 1, y: 0 }}
