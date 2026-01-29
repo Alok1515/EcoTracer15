@@ -9,7 +9,11 @@ import {
   Car, 
   Zap, 
   Utensils, 
-  Globe 
+  Globe,
+  Package,
+  Sparkles,
+  Trophy,
+  Camera
 } from "lucide-react";
 
 export default function Home() {
@@ -89,25 +93,67 @@ export default function Home() {
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
-              title: "Travel Tracking",
-              desc: "Log your daily commutes via car, bus, or plane to see their carbon cost.",
+              title: "Travel & Flights",
+              desc: "Log daily commutes and long-haul flights with precise class-based emission factors.",
               icon: Car,
               color: "text-blue-500",
               bg: "bg-blue-50 dark:bg-blue-500/10",
             },
             {
-              title: "Energy Usage",
-              desc: "Track your electricity and heating consumption with smart conversion factors.",
+              title: "Energy & Heating",
+              desc: "Monitor electricity and heating fuel consumption from grid power to solar energy.",
               icon: Zap,
               color: "text-yellow-500",
               bg: "bg-yellow-50 dark:bg-yellow-500/10",
             },
             {
-              title: "Food Consumption",
-              desc: "See how your dietary choices impact the environment from meat to plant-based.",
+              title: "Dietary Impact",
+              desc: "Track how your food choices—from meat-heavy to vegan diets—affect your footprint.",
               icon: Utensils,
               color: "text-orange-500",
               bg: "bg-orange-50 dark:bg-orange-500/10",
+            },
+            {
+              title: "Product LCA",
+              desc: "Perform 5-stage Life Cycle Assessments on products from raw materials to disposal.",
+              icon: Package,
+              color: "text-emerald-500",
+              bg: "bg-emerald-50 dark:bg-emerald-500/10",
+            },
+            {
+              title: "AI Sustainability Hub",
+              desc: "Get personalized, AI-driven insights and tips to reduce your specific carbon impact.",
+              icon: Sparkles,
+              color: "text-purple-500",
+              bg: "bg-purple-50 dark:bg-purple-500/10",
+            },
+            {
+              title: "Tree Offset Tracker",
+              desc: "Log your tree planting efforts and visualize your path to carbon neutrality.",
+              icon: Leaf,
+              color: "text-green-500",
+              bg: "bg-green-50 dark:bg-green-500/10",
+            },
+            {
+              title: "Global Leaderboard",
+              desc: "Compete with the community and climb ranks as you reduce your emissions.",
+              icon: Trophy,
+              color: "text-amber-500",
+              bg: "bg-amber-50 dark:bg-amber-500/10",
+            },
+            {
+              title: "Precision Analytics",
+              desc: "Analyze your history with interactive charts, timeline views, and category breakdowns.",
+              icon: BarChart3,
+              color: "text-cyan-500",
+              bg: "bg-cyan-50 dark:bg-cyan-500/10",
+            },
+            {
+              title: "Quick Log & Scans",
+              desc: "Use manual entry or coming-soon receipt scanning for effortless tracking.",
+              icon: Camera,
+              color: "text-rose-500",
+              bg: "bg-rose-50 dark:bg-rose-500/10",
             },
           ].map((feature, i) => (
             <motion.div
@@ -151,6 +197,27 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us Section */}
+      <section className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl">Why EcoTrace?</h2>
+          <p className="mt-4 text-zinc-600 dark:text-zinc-400">Scientific precision meets user-friendly design.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[
+            { title: "Verified Data", desc: "Factors based on IPCC, DEFRA, and EPA standards." },
+            { title: "Privacy First", desc: "Your personal activity data is encrypted and secure." },
+            { title: "Real Impact", desc: "Tools to not just track, but actually offset emissions." },
+            { title: "Open Source", desc: "Transparent calculations and community-driven factors." }
+          ].map((item, i) => (
+            <div key={i} className="text-center">
+              <div className="text-emerald-600 dark:text-emerald-400 font-bold text-xl mb-2">{item.title}</div>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">{item.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
     </div>
