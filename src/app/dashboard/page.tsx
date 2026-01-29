@@ -79,6 +79,7 @@ export default function DashboardPage() {
     netBalance: 0,
     average: 19.8, 
     top: 1.3,
+    streakCount: 0,
     categoryEmissions: {} as Record<string, number>,
     timelineData: [] as any[]
   });
@@ -177,6 +178,7 @@ export default function DashboardPage() {
         netBalance: data.netBalance ?? 0,
         average: data.communityAverage ?? 19.8,
         top: 1.3,
+        streakCount: data.streakCount ?? 0,
         categoryEmissions: data.categoryEmissions ?? {},
         timelineData: data.timelineData ?? []
       });
@@ -391,11 +393,19 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-black text-zinc-300 p-6 font-sans">
       {/* Top Navigation Bar */}
       <div className="max-w-7xl mx-auto mb-8">
-        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-1 flex items-center justify-between">
-          <button className="flex-1 py-2 px-4 rounded-xl bg-zinc-800 text-white font-medium text-sm transition-all">Overview</button>
-          <button className="flex-1 py-2 px-4 rounded-xl hover:bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 font-medium text-sm transition-all">Leaderboard</button>
-          <button className="flex-1 py-2 px-4 rounded-xl hover:bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 font-medium text-sm transition-all">Insights</button>
-          <button className="flex-1 py-2 px-4 rounded-xl hover:bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 font-medium text-sm transition-all">AI Assistant</button>
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-1 flex items-center justify-between gap-2">
+          <div className="flex flex-1 items-center gap-1">
+            <button className="flex-1 py-2 px-4 rounded-xl bg-zinc-800 text-white font-medium text-sm transition-all">Overview</button>
+            <button className="flex-1 py-2 px-4 rounded-xl hover:bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 font-medium text-sm transition-all">Leaderboard</button>
+            <button className="flex-1 py-2 px-4 rounded-xl hover:bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 font-medium text-sm transition-all">Insights</button>
+            <button className="flex-1 py-2 px-4 rounded-xl hover:bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 font-medium text-sm transition-all">AI Assistant</button>
+          </div>
+          
+          <div className="px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center gap-2 mr-1">
+            <span className="text-orange-500 font-bold text-sm">{stats.streakCount}</span>
+            <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
+            <span className="text-[10px] text-orange-500/70 font-bold uppercase tracking-wider">Streak</span>
+          </div>
         </div>
       </div>
 

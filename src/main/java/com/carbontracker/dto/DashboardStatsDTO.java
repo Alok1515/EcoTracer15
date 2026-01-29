@@ -13,12 +13,13 @@ public class DashboardStatsDTO {
     private Double totalPositiveEmissions;
     private Double communityAverage;
     private Double netBalance;
+    private Integer streakCount;
     private Map<String, Double> categoryEmissions;
     private List<Map<String, Object>> timelineData;
 
     public DashboardStatsDTO() {}
 
-    public DashboardStatsDTO(Double todayEmissions, Double totalEmissions, Double monthlyChange, Integer userRank, Integer treesNeeded, Integer treesPlanted, Double totalPositiveEmissions, Double communityAverage, Double netBalance, Map<String, Double> categoryEmissions, List<Map<String, Object>> timelineData) {
+    public DashboardStatsDTO(Double todayEmissions, Double totalEmissions, Double monthlyChange, Integer userRank, Integer treesNeeded, Integer treesPlanted, Double totalPositiveEmissions, Double communityAverage, Double netBalance, Integer streakCount, Map<String, Double> categoryEmissions, List<Map<String, Object>> timelineData) {
         this.todayEmissions = todayEmissions;
         this.totalEmissions = totalEmissions;
         this.monthlyChange = monthlyChange;
@@ -28,6 +29,7 @@ public class DashboardStatsDTO {
         this.totalPositiveEmissions = totalPositiveEmissions;
         this.communityAverage = communityAverage;
         this.netBalance = netBalance;
+        this.streakCount = streakCount;
         this.categoryEmissions = categoryEmissions;
         this.timelineData = timelineData;
     }
@@ -50,6 +52,8 @@ public class DashboardStatsDTO {
     public void setCommunityAverage(Double communityAverage) { this.communityAverage = communityAverage; }
     public Double getNetBalance() { return netBalance; }
     public void setNetBalance(Double netBalance) { this.netBalance = netBalance; }
+    public Integer getStreakCount() { return streakCount; }
+    public void setStreakCount(Integer streakCount) { this.streakCount = streakCount; }
     public Map<String, Double> getCategoryEmissions() { return categoryEmissions; }
     public void setCategoryEmissions(Map<String, Double> categoryEmissions) { this.categoryEmissions = categoryEmissions; }
     public List<Map<String, Object>> getTimelineData() { return timelineData; }

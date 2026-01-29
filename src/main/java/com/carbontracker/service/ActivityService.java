@@ -47,7 +47,29 @@ public class ActivityService {
                 .date(LocalDateTime.now())
                 .build();
 
+        updateUserStreak(user);
+
         return activityRepository.save(activity);
+    }
+
+    private void updateUserStreak(User user) {
+        LocalDate today = LocalDate.now();
+        LocalDate lastLog = user.getLastLogDate();
+
+        if (lastLog == null) {
+            user.setStreakCount(1);
+        } else if (lastLog.equals(today)) {
+            // Already logged today, streak remains same
+        } else if (lastLog.equals(today.minusDays(1))) {
+            // Logged yesterday, increment streak
+            user.setStreakCount(user.getStreakCount() + 1);
+        } else {
+            // Missed a day, reset streak
+            user.setStreakCount(1);
+        }
+
+        user.setLastLogDate(today);
+        userRepository.save(user);
     }
 
     public List<Activity> getUserActivities() {
@@ -220,6 +242,17 @@ public class ActivityService {
         int userRank = allUserMonthlyEmissions.indexOf(monthlyEmissions) + 1;
         if (userRank <= 0) userRank = 1;
 
+        // Current Streak check
+        int currentStreak = user.getStreakCount();
+        LocalDate today = LocalDate.now();
+        if (user.getLastLogDate() == null || (!user.getLastLogDate().equals(today) && !user.getLastLogDate().equals(today.minusDays(1)))) {
+            currentStreak = 0;
+            if (user.getStreakCount() != 0) {
+                user.setStreakCount(0);
+                userRepository.save(user);
+            }
+        }
+
         return new DashboardStatsDTO(
                 todayEmissions,
                 totalPositiveEmissions,
@@ -230,6 +263,7 @@ public class ActivityService {
                 totalPositiveEmissions,
                 communityAverage,
                 netBalance,
+                currentStreak,
                 categoryEmissions,
                 timelineData
         );
