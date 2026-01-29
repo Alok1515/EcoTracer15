@@ -65,11 +65,12 @@ public class ActivityService {
         LocalDateTime start = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
         LocalDateTime end = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
 
-        return activityRepository.findByUserIdAndDateBetween(user.getId(), start, end)
+        Double todayEmissions = activityRepository.findByUserIdAndDateBetween(user.getId(), start, end)
                 .stream()
                 .filter(a -> a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
+        return Math.max(0.0, todayEmissions);
     }
 
     public Double getMonthlyEmissions() {
@@ -80,11 +81,12 @@ public class ActivityService {
         LocalDateTime start = LocalDateTime.of(LocalDate.now().withDayOfMonth(1), LocalTime.MIN);
         LocalDateTime end = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
 
-        return activityRepository.findByUserIdAndDateBetween(user.getId(), start, end)
+        Double monthlyEmissions = activityRepository.findByUserIdAndDateBetween(user.getId(), start, end)
                 .stream()
                 .filter(a -> a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
+        return Math.max(0.0, monthlyEmissions);
     }
 
     public DashboardStatsDTO getDashboardStats() {
@@ -102,6 +104,7 @@ public class ActivityService {
                 .filter(a -> a != null && a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
+        monthlyEmissions = Math.max(0.0, monthlyEmissions);
 
         // Previous Month Emissions for current user
         LocalDateTime startOfLastMonth = startOfMonth.minusMonths(1);
@@ -111,6 +114,7 @@ public class ActivityService {
                 .filter(a -> a != null && a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
+        lastMonthEmissions = Math.max(0.0, lastMonthEmissions);
 
         Double monthlyChange = 0.0;
         if (lastMonthEmissions > 0) {
@@ -134,6 +138,7 @@ public class ActivityService {
                 .filter(a -> a != null && a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
+        todayEmissions = Math.max(0.0, todayEmissions);
 
         // Total Positive Emissions (to calculate how many trees are needed total)
         Double totalPositiveEmissions = activityRepository.findByUserId(user.getId())
