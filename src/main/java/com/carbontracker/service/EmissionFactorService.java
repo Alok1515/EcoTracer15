@@ -27,6 +27,9 @@ public class EmissionFactorService {
             case FLIGHTS: return 0.15;
             case PRODUCT: return 1.0;
             case TREE_PLANTING: return -21.0;
+            case WASTE: return 0.45;
+            case WATER: return 0.0003;
+            case SHOPPING: return 5.0;
             default: return 1.0;
         }
     }

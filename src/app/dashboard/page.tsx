@@ -24,7 +24,10 @@ import {
   X,
   Calendar,
   Plus,
-  MessageSquare
+  MessageSquare,
+  Trash2,
+  Droplets,
+  ShoppingBag
 } from "lucide-react";
 import { 
   ResponsiveContainer, 
@@ -101,6 +104,8 @@ export default function DashboardPage() {
     const [heatingFuel, setHeatingFuel] = useState("gas");
     const [flightClass, setFlightClass] = useState("short_economy");
     const [foodType, setFoodType] = useState("meat");
+  const [wasteType, setWasteType] = useState("landfill");
+  const [shoppingType, setShoppingType] = useState("clothing");
   const [precisionMode, setPrecisionMode] = useState(true);
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [modalStreakCount, setModalStreakCount] = useState(0);
@@ -198,6 +203,12 @@ export default function DashboardPage() {
         return "kWh";
       case "Food":
         return "meals";
+      case "Waste":
+        return "kg";
+      case "Water":
+        return "liters";
+      case "Shopping":
+        return "items";
       default:
         return "units";
     }
@@ -248,6 +259,22 @@ export default function DashboardPage() {
         "beef": 6.1,
         "seafood": 1.8,
         "chicken": 6.1
+      },
+      "Waste": {
+        "landfill": 0.58,
+        "recyclable": 0.02,
+        "organic": 0.12,
+        "incineration": 0.45
+      },
+      "Water": {
+        "tap": 0.0003
+      },
+      "Shopping": {
+        "clothing": 8.5,
+        "electronics": 45.0,
+        "home": 12.0,
+        "luxury": 120.0,
+        "other": 5.0
       }
     };
 
@@ -260,6 +287,9 @@ export default function DashboardPage() {
       case "Heating": factor = categoryFactors[heatingFuel] || 0.18; break;
       case "Flights": factor = categoryFactors[flightClass] || 0.15; break;
       case "Food": factor = categoryFactors[foodType] || 2.5; break;
+      case "Waste": factor = categoryFactors[wasteType] || 0.58; break;
+      case "Water": factor = categoryFactors["tap"]; break;
+      case "Shopping": factor = categoryFactors[shoppingType] || 5.0; break;
       default: factor = 0;
     }
 
@@ -289,7 +319,10 @@ export default function DashboardPage() {
       "Electricity": "ELECTRICITY",
       "Heating": "HEATING",
       "Flights": "FLIGHTS",
-      "Food": "FOOD"
+      "Food": "FOOD",
+      "Waste": "WASTE",
+      "Water": "WATER",
+      "Shopping": "SHOPPING"
     };
 
     let description = "";
@@ -299,6 +332,9 @@ export default function DashboardPage() {
       case "Heating": description = `Fuel: ${heatingFuel}`; break;
       case "Flights": description = `Class: ${flightClass}`; break;
       case "Food": description = `Diet: ${foodType}`; break;
+      case "Waste": description = `Type: ${wasteType}`; break;
+      case "Water": description = `Source: Tap Water`; break;
+      case "Shopping": description = `Item: ${shoppingType}`; break;
       default: description = activeCategory;
     }
 
@@ -531,13 +567,16 @@ export default function DashboardPage() {
 
                       <div>
                         <label className="text-sm font-medium text-muted-foreground mb-4 block">Activity Category</label>
-                        <div className="grid grid-cols-5 gap-3">
+                        <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
                           {[
                             { name: "Transportation", icon: Car },
                             { name: "Electricity", icon: Zap },
                             { name: "Heating", icon: Flame },
                             { name: "Flights", icon: Plane },
-                            { name: "Food", icon: Utensils }
+                            { name: "Food", icon: Utensils },
+                            { name: "Waste", icon: Trash2 },
+                            { name: "Water", icon: Droplets },
+                            { name: "Shopping", icon: ShoppingBag }
                           ].map((cat) => (
                             <button 
                               key={cat.name}
@@ -647,6 +686,41 @@ export default function DashboardPage() {
                                 <SelectItem value="seafood">Seafood/Fish</SelectItem>
                                 <SelectItem value="vegetarian">Vegetarian</SelectItem>
                                 <SelectItem value="vegan">Vegan</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+
+                        {activeCategory === "Waste" && (
+                          <div className="space-y-2">
+                            <Label className="text-sm text-muted-foreground">Waste Type</Label>
+                            <Select value={wasteType} onValueChange={setWasteType}>
+                              <SelectTrigger className="bg-muted/50 border-border h-12 rounded-xl text-foreground focus:ring-0">
+                                <SelectValue placeholder="Select waste type" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-popover border-border text-popover-foreground">
+                                <SelectItem value="landfill">Landfill (Non-recyclable)</SelectItem>
+                                <SelectItem value="recyclable">Recyclable</SelectItem>
+                                <SelectItem value="organic">Organic/Compost</SelectItem>
+                                <SelectItem value="incineration">Incineration</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+
+                        {activeCategory === "Shopping" && (
+                          <div className="space-y-2">
+                            <Label className="text-sm text-muted-foreground">Item Category</Label>
+                            <Select value={shoppingType} onValueChange={setShoppingType}>
+                              <SelectTrigger className="bg-muted/50 border-border h-12 rounded-xl text-foreground focus:ring-0">
+                                <SelectValue placeholder="Select item type" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-popover border-border text-popover-foreground">
+                                <SelectItem value="clothing">Clothing/Apparel</SelectItem>
+                                <SelectItem value="electronics">Electronics/Gadgets</SelectItem>
+                                <SelectItem value="home">Home Goods/Furniture</SelectItem>
+                                <SelectItem value="luxury">Luxury Items</SelectItem>
+                                <SelectItem value="other">General Merchandise</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
