@@ -51,6 +51,7 @@ public class ChatService {
         }
 
         OpenRouterRequest orRequest = new OpenRouterRequest(apiModel, orMessages);
+        orRequest.setMax_tokens(2000); // Prevent credit issues by limiting response length
 
         return webClient.post()
                 .uri(apiUrl)
@@ -73,6 +74,7 @@ public class ChatService {
     public static class OpenRouterRequest {
         private String model;
         private List<OpenRouterMessage> messages;
+        private Integer max_tokens;
 
         public OpenRouterRequest() {}
         public OpenRouterRequest(String model, List<OpenRouterMessage> messages) {
@@ -84,6 +86,8 @@ public class ChatService {
         public void setModel(String model) { this.model = model; }
         public List<OpenRouterMessage> getMessages() { return messages; }
         public void setMessages(List<OpenRouterMessage> messages) { this.messages = messages; }
+        public Integer getMax_tokens() { return max_tokens; }
+        public void setMax_tokens(Integer max_tokens) { this.max_tokens = max_tokens; }
     }
 
     public static class OpenRouterMessage {

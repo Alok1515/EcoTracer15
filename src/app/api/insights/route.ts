@@ -50,23 +50,25 @@ export async function POST(req: NextRequest) {
       Return ONLY the JSON.
     `;
 
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://carbon-tracker.local", // Optional for OpenRouter
-        "X-Title": "Carbon Tracker" // Optional for OpenRouter
-      },
-      body: JSON.stringify({
-        model: modelName,
-        messages: [
-          { role: "system", content: "You are a Sustainability Expert AI that only returns JSON responses." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" }
-      })
-    });
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://carbon-tracker.local",
+          "X-Title": "Carbon Tracker"
+        },
+        body: JSON.stringify({
+          model: modelName,
+          messages: [
+            { role: "system", content: "You are a Sustainability Expert AI that only returns JSON responses." },
+            { role: "user", content: prompt }
+          ],
+          response_format: { type: "json_object" },
+          max_tokens: 1000,
+          temperature: 0.7
+        })
+      });
 
     if (!response.ok) {
       const errorData = await response.json();
