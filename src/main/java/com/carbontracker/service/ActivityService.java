@@ -13,7 +13,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
+import java.time.format.TextStyle;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,10 +99,12 @@ public class ActivityService {
         LocalDateTime startOfMonth = now.withDayOfMonth(1).with(LocalTime.MIN);
         LocalDateTime endOfMonth = now.with(LocalTime.MAX);
         
+        List<Activity> allUserActivities = activityRepository.findByUserId(user.getId());
+
         // Current Month Emissions for current user
-        Double monthlyEmissions = activityRepository.findByUserIdAndDateBetween(user.getId(), startOfMonth, endOfMonth)
-                .stream()
-                .filter(a -> a != null && a.getEmission() != null)
+        Double monthlyEmissions = allUserActivities.stream()
+                .filter(a -> a.getDate() != null && a.getDate().isAfter(startOfMonth) && a.getDate().isBefore(endOfMonth))
+                .filter(a -> a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
         monthlyEmissions = Math.max(0.0, monthlyEmissions);
@@ -109,9 +112,9 @@ public class ActivityService {
         // Previous Month Emissions for current user
         LocalDateTime startOfLastMonth = startOfMonth.minusMonths(1);
         LocalDateTime endOfLastMonth = startOfMonth.minusSeconds(1);
-        Double lastMonthEmissions = activityRepository.findByUserIdAndDateBetween(user.getId(), startOfLastMonth, endOfLastMonth)
-                .stream()
-                .filter(a -> a != null && a.getEmission() != null)
+        Double lastMonthEmissions = allUserActivities.stream()
+                .filter(a -> a.getDate() != null && a.getDate().isAfter(startOfLastMonth) && a.getDate().isBefore(endOfLastMonth))
+                .filter(a -> a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
         lastMonthEmissions = Math.max(0.0, lastMonthEmissions);
@@ -124,36 +127,33 @@ public class ActivityService {
         }
 
         // Total Emissions for current user (cumulative net)
-        Double totalEmissions = activityRepository.findByUserId(user.getId())
-                .stream()
-                .filter(a -> a != null && a.getEmission() != null)
+        Double totalEmissionsSum = allUserActivities.stream()
+                .filter(a -> a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
         
         // Net Balance: Cumulative net capped at 0 as requested by user
-        Double netBalance = Math.max(0.0, totalEmissions);
+        Double netBalance = Math.max(0.0, totalEmissionsSum);
 
         // Today's Emissions for current user
         LocalDateTime startOfDay = now.with(LocalTime.MIN);
         LocalDateTime endOfDay = now.with(LocalTime.MAX);
-        Double todayEmissions = activityRepository.findByUserIdAndDateBetween(user.getId(), startOfDay, endOfDay)
-                .stream()
-                .filter(a -> a != null && a.getEmission() != null)
+        Double todayEmissions = allUserActivities.stream()
+                .filter(a -> a.getDate() != null && a.getDate().isAfter(startOfDay) && a.getDate().isBefore(endOfDay))
+                .filter(a -> a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
         todayEmissions = Math.max(0.0, todayEmissions);
 
         // Total Positive Emissions (to calculate how many trees are needed total)
-        Double totalPositiveEmissions = activityRepository.findByUserId(user.getId())
-                .stream()
-                .filter(a -> a != null && a.getEmission() != null && a.getEmission() > 0)
+        Double totalPositiveEmissions = allUserActivities.stream()
+                .filter(a -> a.getEmission() != null && a.getEmission() > 0)
                 .mapToDouble(Activity::getEmission)
                 .sum();
 
         // Trees Already Planted
-        int treesPlanted = activityRepository.findByUserId(user.getId())
-                .stream()
-                .filter(a -> a != null && a.getType() == Activity.ActivityType.TREE_PLANTING)
+        int treesPlanted = allUserActivities.stream()
+                .filter(a -> a.getType() == Activity.ActivityType.TREE_PLANTING)
                 .mapToInt(a -> a.getValue().intValue())
                 .sum();
 
@@ -161,11 +161,41 @@ public class ActivityService {
         int calculatedTotalTreesNeeded = (int) Math.ceil(totalPositiveEmissions / 21.0);
         int treesNeeded = Math.max(0, calculatedTotalTreesNeeded - treesPlanted);
 
+        // Emissions by Category
+        Map<String, Double> categoryEmissions = allUserActivities.stream()
+                .filter(a -> a.getEmission() != null && a.getEmission() > 0)
+                .collect(Collectors.groupingBy(
+                        a -> a.getType().name().toLowerCase(),
+                        Collectors.summingDouble(Activity::getEmission)
+                ));
+
+        // Timeline Data (Last 5 months)
+        List<Map<String, Object>> timelineData = new ArrayList<>();
+        for (int i = 4; i >= 0; i--) {
+            LocalDateTime monthStart = now.minusMonths(i).withDayOfMonth(1).with(LocalTime.MIN);
+            LocalDateTime monthEnd = monthStart.plusMonths(1).minusSeconds(1);
+            if (i == 0) monthEnd = now.with(LocalTime.MAX);
+
+            final LocalDateTime finalMonthStart = monthStart;
+            final LocalDateTime finalMonthEnd = monthEnd;
+
+            Double monthEmissions = allUserActivities.stream()
+                    .filter(a -> a.getDate() != null && a.getDate().isAfter(finalMonthStart) && a.getDate().isBefore(finalMonthEnd))
+                    .filter(a -> a.getEmission() != null && a.getEmission() > 0)
+                    .mapToDouble(Activity::getEmission)
+                    .sum();
+
+            Map<String, Object> dataPoint = new HashMap<>();
+            dataPoint.put("name", monthStart.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH));
+            dataPoint.put("co2", monthEmissions);
+            timelineData.add(dataPoint);
+        }
+
         // Community Stats
         List<User> allUsers = userRepository.findAll();
         double totalMonthlyForAll = 0.0;
         int activeUsersThisMonth = 0;
-        List<Double> allUserMonthlyEmissions = new java.util.ArrayList<>();
+        List<Double> allUserMonthlyEmissions = new ArrayList<>();
 
         for (User u : allUsers) {
             if (u.getId() == null) continue;
@@ -186,20 +216,22 @@ public class ActivityService {
         Double communityAverage = activeUsersThisMonth > 0 ? totalMonthlyForAll / activeUsersThisMonth : 19.8;
         
         // Calculate Rank (lower emission = better rank)
-        java.util.Collections.sort(allUserMonthlyEmissions);
+        Collections.sort(allUserMonthlyEmissions);
         int userRank = allUserMonthlyEmissions.indexOf(monthlyEmissions) + 1;
         if (userRank <= 0) userRank = 1;
 
         return new DashboardStatsDTO(
                 todayEmissions,
-                totalPositiveEmissions, // Lifetime Emissions card (stats.total)
+                totalPositiveEmissions,
                 monthlyChange,
                 userRank,
                 treesNeeded,
                 treesPlanted,
                 totalPositiveEmissions,
                 communityAverage,
-                netBalance
+                netBalance,
+                categoryEmissions,
+                timelineData
         );
     }
 }

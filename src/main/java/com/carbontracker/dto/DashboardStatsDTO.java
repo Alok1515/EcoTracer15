@@ -1,5 +1,8 @@
 package com.carbontracker.dto;
 
+import java.util.List;
+import java.util.Map;
+
 public class DashboardStatsDTO {
     private Double todayEmissions;
     private Double totalEmissions;
@@ -10,10 +13,12 @@ public class DashboardStatsDTO {
     private Double totalPositiveEmissions;
     private Double communityAverage;
     private Double netBalance;
+    private Map<String, Double> categoryEmissions;
+    private List<Map<String, Object>> timelineData;
 
     public DashboardStatsDTO() {}
 
-    public DashboardStatsDTO(Double todayEmissions, Double totalEmissions, Double monthlyChange, Integer userRank, Integer treesNeeded, Integer treesPlanted, Double totalPositiveEmissions, Double communityAverage, Double netBalance) {
+    public DashboardStatsDTO(Double todayEmissions, Double totalEmissions, Double monthlyChange, Integer userRank, Integer treesNeeded, Integer treesPlanted, Double totalPositiveEmissions, Double communityAverage, Double netBalance, Map<String, Double> categoryEmissions, List<Map<String, Object>> timelineData) {
         this.todayEmissions = todayEmissions;
         this.totalEmissions = totalEmissions;
         this.monthlyChange = monthlyChange;
@@ -23,6 +28,8 @@ public class DashboardStatsDTO {
         this.totalPositiveEmissions = totalPositiveEmissions;
         this.communityAverage = communityAverage;
         this.netBalance = netBalance;
+        this.categoryEmissions = categoryEmissions;
+        this.timelineData = timelineData;
     }
 
     public Double getTodayEmissions() { return todayEmissions; }
@@ -43,4 +50,8 @@ public class DashboardStatsDTO {
     public void setCommunityAverage(Double communityAverage) { this.communityAverage = communityAverage; }
     public Double getNetBalance() { return netBalance; }
     public void setNetBalance(Double netBalance) { this.netBalance = netBalance; }
+    public Map<String, Double> getCategoryEmissions() { return categoryEmissions; }
+    public void setCategoryEmissions(Map<String, Double> categoryEmissions) { this.categoryEmissions = categoryEmissions; }
+    public List<Map<String, Object>> getTimelineData() { return timelineData; }
+    public void setTimelineData(List<Map<String, Object>> timelineData) { this.timelineData = timelineData; }
 }

@@ -25,6 +25,19 @@ import {
   Calendar,
   Plus
 } from "lucide-react";
+import { 
+  ResponsiveContainer, 
+  PieChart, 
+  Pie, 
+  Cell, 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend 
+} from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -65,7 +78,9 @@ export default function DashboardPage() {
     totalPositiveEmissions: 0,
     netBalance: 0,
     average: 19.8, 
-    top: 1.3 
+    top: 1.3,
+    categoryEmissions: {} as Record<string, number>,
+    timelineData: [] as any[]
   });
   const [activities, setActivities] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
@@ -162,7 +177,9 @@ export default function DashboardPage() {
         totalPositiveEmissions: data.totalPositiveEmissions ?? 0,
         netBalance: data.netBalance ?? 0,
         average: data.communityAverage ?? 19.8,
-        top: 1.3
+        top: 1.3,
+        categoryEmissions: data.categoryEmissions ?? {},
+        timelineData: data.timelineData ?? []
       });
 
       // Fetch activities for history
@@ -858,6 +875,85 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Analytics Charts Section */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8 mb-8">
+        <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2rem] overflow-hidden min-h-[400px]">
+          <CardContent className="p-8 h-full flex flex-col">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-white mb-1">Emissions by Category</h2>
+              <p className="text-sm text-zinc-500">Distribution of your carbon footprint</p>
+            </div>
+            <div className="flex-1 min-h-[250px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={Object.entries(stats.categoryEmissions || {}).map(([name, value]) => ({ name, value }))}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {Object.entries(stats.categoryEmissions || {}).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"][index % 5]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: "12px" }}
+                    itemStyle={{ color: "#fff" }}
+                  />
+                  <Legend verticalAlign="bottom" height={36}/>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2rem] overflow-hidden min-h-[400px]">
+          <CardContent className="p-8 h-full flex flex-col">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-white mb-1">Emissions Timeline</h2>
+              <p className="text-sm text-zinc-500">Your carbon footprint over time</p>
+            </div>
+            <div className="flex-1 min-h-[250px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={stats.timelineData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="#71717a" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false}
+                  />
+                  <YAxis 
+                    stroke="#71717a" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false}
+                    tickFormatter={(value) => `${value}kg`}
+                  />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: "12px" }}
+                    itemStyle={{ color: "#fff" }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="co2" 
+                    stroke="#10b981" 
+                    strokeWidth={3} 
+                    dot={{ fill: "#10b981", strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, strokeWidth: 0 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
         <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
           <AlertDialogHeader>
