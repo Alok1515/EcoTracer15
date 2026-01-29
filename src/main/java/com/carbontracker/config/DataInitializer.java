@@ -20,7 +20,10 @@ public class DataInitializer {
                 repository.saveAll(List.of(
                     new EmissionFactor(null, Activity.ActivityType.TRAVEL, 0.21),
                     new EmissionFactor(null, Activity.ActivityType.ELECTRICITY, 0.82),
-                    new EmissionFactor(null, Activity.ActivityType.FOOD, 2.5)
+                    new EmissionFactor(null, Activity.ActivityType.FOOD, 2.5),
+                    new EmissionFactor(null, Activity.ActivityType.HEATING, 0.18),
+                    new EmissionFactor(null, Activity.ActivityType.FLIGHTS, 0.15),
+                    new EmissionFactor(null, Activity.ActivityType.PRODUCT, 50.0)
                 ));
             }
         };

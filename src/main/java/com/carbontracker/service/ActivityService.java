@@ -40,6 +40,7 @@ public class ActivityService {
                 .type(dto.getType())
                 .value(dto.getValue())
                 .emission(emission)
+                .description(dto.getDescription())
                 .date(LocalDateTime.now())
                 .build();
 

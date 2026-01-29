@@ -39,6 +39,25 @@ export default function DashboardPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [amount, setAmount] = useState("");
   const [vehicleType, setVehicleType] = useState("gasoline");
+  const [electricitySource, setElectricitySource] = useState("grid");
+  const [heatingFuel, setHeatingFuel] = useState("gas");
+  const [flightClass, setFlightClass] = useState("economy");
+  const [foodType, setFoodType] = useState("meat");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+
+  const products = [
+    { name: "MacBook Pro 14\"", category: "Electronics", co2: 245, icon: Package },
+    { name: "Denim Jeans", category: "Apparel", co2: 33.4, icon: Package },
+    { name: "Coffee (1kg)", category: "Food", co2: 17.0, icon: Package },
+    { name: "Smartphone", category: "Electronics", co2: 79.0, icon: Package },
+    { name: "Leather Shoes", category: "Apparel", co2: 15.0, icon: Package },
+  ];
+
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -71,7 +90,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handleAddEmission = async () => {
+  const handleAddEmission = async (isProduct = false) => {
     if (!amount) return;
     setIsLogging(true);
 
@@ -82,12 +101,24 @@ export default function DashboardPage() {
     const categoryMap: Record<string, string> = {
       "Transportation": "TRAVEL",
       "Electricity": "ELECTRICITY",
-      "Heating": "ELECTRICITY",
-      "Flights": "TRAVEL",
+      "Heating": "HEATING",
+      "Flights": "FLIGHTS",
       "Food": "FOOD"
     };
 
-    const description = `${activeCategory}${activeCategory === 'Transportation' ? ` (${vehicleType})` : ''}`;
+    let description = "";
+    if (isProduct && selectedProduct) {
+      description = `Product: ${selectedProduct.name} (${selectedProduct.category})`;
+    } else {
+      switch (activeCategory) {
+        case "Transportation": description = `Vehicle: ${vehicleType}`; break;
+        case "Electricity": description = `Source: ${electricitySource}`; break;
+        case "Heating": description = `Fuel: ${heatingFuel}`; break;
+        case "Flights": description = `Class: ${flightClass}`; break;
+        case "Food": description = `Diet: ${foodType}`; break;
+        default: description = activeCategory;
+      }
+    }
 
     try {
       const response = await fetch("http://localhost:8080/api/activity/add", {
@@ -97,15 +128,16 @@ export default function DashboardPage() {
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          category: categoryMap[activeCategory] || "TRAVEL",
+          type: isProduct ? "PRODUCT" : (categoryMap[activeCategory] || "TRAVEL"),
           description: description,
-          amount: parseFloat(amount),
+          value: parseFloat(amount),
         }),
       });
 
       if (response.ok) {
         setIsSuccess(true);
         setAmount("");
+        setSelectedProduct(null);
         setTimeout(() => {
           setIsSuccess(false);
           fetchData();
@@ -299,6 +331,71 @@ export default function DashboardPage() {
                     </div>
                   )}
 
+                  {activeCategory === "Electricity" && (
+                    <div className="space-y-2">
+                      <Label className="text-sm text-zinc-400">Energy Source</Label>
+                      <Select value={electricitySource} onValueChange={setElectricitySource}>
+                        <SelectTrigger className="bg-zinc-950/50 border-zinc-800 h-12 rounded-xl text-zinc-300 focus:ring-0">
+                          <SelectValue placeholder="Select source" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
+                          <SelectItem value="grid">Power Grid</SelectItem>
+                          <SelectItem value="solar">Solar Panels</SelectItem>
+                          <SelectItem value="wind">Wind Energy</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {activeCategory === "Heating" && (
+                    <div className="space-y-2">
+                      <Label className="text-sm text-zinc-400">Heating Fuel</Label>
+                      <Select value={heatingFuel} onValueChange={setHeatingFuel}>
+                        <SelectTrigger className="bg-zinc-950/50 border-zinc-800 h-12 rounded-xl text-zinc-300 focus:ring-0">
+                          <SelectValue placeholder="Select fuel" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
+                          <SelectItem value="gas">Natural Gas</SelectItem>
+                          <SelectItem value="oil">Heating Oil</SelectItem>
+                          <SelectItem value="electric">Electric Heat</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {activeCategory === "Flights" && (
+                    <div className="space-y-2">
+                      <Label className="text-sm text-zinc-400">Flight Class</Label>
+                      <Select value={flightClass} onValueChange={setFlightClass}>
+                        <SelectTrigger className="bg-zinc-950/50 border-zinc-800 h-12 rounded-xl text-zinc-300 focus:ring-0">
+                          <SelectValue placeholder="Select class" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
+                          <SelectItem value="economy">Economy</SelectItem>
+                          <SelectItem value="business">Business</SelectItem>
+                          <SelectItem value="first">First Class</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {activeCategory === "Food" && (
+                    <div className="space-y-2">
+                      <Label className="text-sm text-zinc-400">Diet Type</Label>
+                      <Select value={foodType} onValueChange={setFoodType}>
+                        <SelectTrigger className="bg-zinc-950/50 border-zinc-800 h-12 rounded-xl text-zinc-300 focus:ring-0">
+                          <SelectValue placeholder="Select diet" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
+                          <SelectItem value="meat">Meat Lover</SelectItem>
+                          <SelectItem value="vegetarian">Vegetarian</SelectItem>
+                          <SelectItem value="vegan">Vegan</SelectItem>
+                          <SelectItem value="beef">High Beef</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
                   <div className="space-y-2">
                     <Label className="text-sm text-zinc-400">Value</Label>
                     <div className="relative">
@@ -320,6 +417,68 @@ export default function DashboardPage() {
                   className="w-full h-14 bg-white hover:bg-zinc-200 text-black font-semibold rounded-xl text-base transition-all disabled:opacity-50"
                 >
                   {isLogging ? <Loader2 className="w-5 h-5 animate-spin" /> : "Add Emission"}
+                </Button>
+              </TabsContent>
+
+              <TabsContent value="product" className="mt-6 space-y-6">
+                <div className="space-y-4">
+                  <div className="relative">
+                    <Input 
+                      placeholder="Search products (e.g. Laptop, Jeans...)" 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="bg-zinc-950/50 border-zinc-800 h-12 rounded-xl pl-4 text-zinc-300 placeholder:text-zinc-600 focus:ring-0 focus:border-zinc-700"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    {filteredProducts.map((product) => (
+                      <button
+                        key={product.name}
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          setAmount(product.co2.toString());
+                        }}
+                        className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+                          selectedProduct?.name === product.name
+                          ? "bg-white/10 border-white/20 text-white"
+                          : "bg-zinc-950/30 border-zinc-800/50 text-zinc-400 hover:border-zinc-700"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-zinc-800 rounded-lg">
+                            <product.icon className="w-4 h-4 text-zinc-400" />
+                          </div>
+                          <div className="text-left">
+                            <div className="text-sm font-medium text-white">{product.name}</div>
+                            <div className="text-xs text-zinc-500">{product.category}</div>
+                          </div>
+                        </div>
+                        <div className="text-sm font-semibold">{product.co2} kg</div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {selectedProduct && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-emerald-500 uppercase tracking-wider font-bold">Estimated Impact</span>
+                        <span className="text-lg font-bold text-white">{selectedProduct.co2} kg CO2e</span>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+
+                <Button 
+                  onClick={() => handleAddEmission(true)}
+                  disabled={isLogging || !selectedProduct}
+                  className="w-full h-14 bg-white hover:bg-zinc-200 text-black font-semibold rounded-xl text-base transition-all disabled:opacity-50"
+                >
+                  {isLogging ? <Loader2 className="w-5 h-5 animate-spin" /> : "Log Product Impact"}
                 </Button>
               </TabsContent>
             </Tabs>

@@ -12,16 +12,18 @@ public class Activity {
     private ActivityType type;
     private Double value;
     private Double emission;
+    private String description;
     private LocalDateTime date;
 
     public Activity() {}
 
-    public Activity(String id, String userId, ActivityType type, Double value, Double emission, LocalDateTime date) {
+    public Activity(String id, String userId, ActivityType type, Double value, Double emission, String description, LocalDateTime date) {
         this.id = id;
         this.userId = userId;
         this.type = type;
         this.value = value;
         this.emission = emission;
+        this.description = description;
         this.date = date;
     }
 
@@ -39,11 +41,13 @@ public class Activity {
     public void setValue(Double value) { this.value = value; }
     public Double getEmission() { return emission; }
     public void setEmission(Double emission) { this.emission = emission; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
     public LocalDateTime getDate() { return date; }
     public void setDate(LocalDateTime date) { this.date = date; }
 
     public enum ActivityType {
-        TRAVEL, ELECTRICITY, FOOD
+        TRAVEL, ELECTRICITY, FOOD, HEATING, FLIGHTS, PRODUCT
     }
 
     public static class ActivityBuilder {
@@ -52,6 +56,7 @@ public class Activity {
         private ActivityType type;
         private Double value;
         private Double emission;
+        private String description;
         private LocalDateTime date;
 
         public ActivityBuilder id(String id) { this.id = id; return this; }
@@ -59,10 +64,11 @@ public class Activity {
         public ActivityBuilder type(ActivityType type) { this.type = type; return this; }
         public ActivityBuilder value(Double value) { this.value = value; return this; }
         public ActivityBuilder emission(Double emission) { this.emission = emission; return this; }
+        public ActivityBuilder description(String description) { this.description = description; return this; }
         public ActivityBuilder date(LocalDateTime date) { this.date = date; return this; }
 
         public Activity build() {
-            return new Activity(id, userId, type, value, emission, date);
+            return new Activity(id, userId, type, value, emission, description, date);
         }
     }
 }
