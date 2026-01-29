@@ -101,10 +101,7 @@ export default function DashboardPage() {
     const [heatingFuel, setHeatingFuel] = useState("gas");
     const [flightClass, setFlightClass] = useState("short_economy");
     const [foodType, setFoodType] = useState("meat");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [precisionMode, setPrecisionMode] = useState(true);
-  const [isProductMode, setIsProductMode] = useState(false);
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [modalStreakCount, setModalStreakCount] = useState(0);
 
@@ -127,19 +124,6 @@ export default function DashboardPage() {
     }
     return num.toFixed(1);
   };
-
-  const products = [
-    { name: "MacBook Pro 14\"", category: "Electronics", co2: 245, icon: Package },
-    { name: "Denim Jeans", category: "Apparel", co2: 33.4, icon: Package },
-    { name: "Coffee (1kg)", category: "Food", co2: 17.0, icon: Package },
-    { name: "Smartphone", category: "Electronics", co2: 79.0, icon: Package },
-    { name: "Leather Shoes", category: "Apparel", co2: 15.0, icon: Package },
-  ];
-
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -220,16 +204,6 @@ export default function DashboardPage() {
   };
 
   const getEmissionDetails = () => {
-    if (isProductMode && selectedProduct) {
-      return {
-        total: selectedProduct.co2,
-        factor: "Lifecycle Analysis Data",
-        calculation: "Product standard impact",
-        source: "Climatiq Database",
-        precision: "92%"
-      };
-    }
-    
     const val = parseFloat(amount);
     if (!amount || isNaN(val)) return null;
 
@@ -299,14 +273,12 @@ export default function DashboardPage() {
     };
   };
 
-  const handleAddEmission = async (isProduct = false) => {
-    if (isProduct && !selectedProduct) return;
-    if (!isProduct && !amount) return;
-    setIsProductMode(isProduct);
-    await processAddEmission(isProduct);
+  const handleAddEmission = async () => {
+    if (!amount) return;
+    await processAddEmission();
   };
 
-  const processAddEmission = async (isProduct = false) => {
+  const processAddEmission = async () => {
     setIsLogging(true);
 
     const token = localStorage.getItem("token");
@@ -321,17 +293,13 @@ export default function DashboardPage() {
     };
 
     let description = "";
-    if (isProduct || (isProductMode && selectedProduct)) {
-      description = `Product: ${selectedProduct.name} (${selectedProduct.category})`;
-    } else {
-      switch (activeCategory) {
-        case "Transportation": description = `Vehicle: ${vehicleType}`; break;
-        case "Electricity": description = `Source: ${electricitySource}`; break;
-        case "Heating": description = `Fuel: ${heatingFuel}`; break;
-        case "Flights": description = `Class: ${flightClass}`; break;
-        case "Food": description = `Diet: ${foodType}`; break;
-        default: description = activeCategory;
-      }
+    switch (activeCategory) {
+      case "Transportation": description = `Vehicle: ${vehicleType}`; break;
+      case "Electricity": description = `Source: ${electricitySource}`; break;
+      case "Heating": description = `Fuel: ${heatingFuel}`; break;
+      case "Flights": description = `Class: ${flightClass}`; break;
+      case "Food": description = `Diet: ${foodType}`; break;
+      default: description = activeCategory;
     }
 
     try {
@@ -342,9 +310,9 @@ export default function DashboardPage() {
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          type: isProduct ? "PRODUCT" : (categoryMap[activeCategory] || "TRAVEL"),
+          type: categoryMap[activeCategory] || "TRAVEL",
           description: description,
-          value: isProduct ? selectedProduct.co2 : parseFloat(amount),
+          value: parseFloat(amount),
         }),
       });
 
@@ -352,7 +320,6 @@ export default function DashboardPage() {
         const data = await response.json();
         setIsSuccess(true);
         setAmount("");
-        setSelectedProduct(null);
         await fetchData();
         
         if (data.firstToday) {
@@ -545,9 +512,6 @@ export default function DashboardPage() {
                       </TabsTrigger>
                       <TabsTrigger value="image" className="flex-1 rounded-lg data-[state=active]:bg-zinc-800 data-[state=active]:text-white">
                         <Camera className="w-4 h-4 mr-2" /> Image
-                      </TabsTrigger>
-                      <TabsTrigger value="product" className="flex-1 rounded-lg data-[state=active]:bg-zinc-800 data-[state=active]:text-white">
-                        <Package className="w-4 h-4 mr-2" /> Product LCA
                       </TabsTrigger>
                     </TabsList>
                     
@@ -760,73 +724,14 @@ export default function DashboardPage() {
                       </Button>
                     </TabsContent>
 
-                    <TabsContent value="product" className="mt-6 space-y-6">
-                      <div className="space-y-4">
-                        <div className="relative">
-                          <Input 
-                            placeholder="Search products (e.g. Laptop, Jeans...)" 
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="bg-zinc-950/50 border-zinc-800 h-12 rounded-xl pl-4 text-zinc-300 placeholder:text-zinc-600 focus:ring-0 focus:border-zinc-700"
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                          {filteredProducts.map((product) => (
-                            <button
-                              key={product.name}
-                              onClick={() => {
-                                setSelectedProduct(product);
-                                setAmount(product.co2.toString());
-                              }}
-                              className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
-                                selectedProduct?.name === product.name
-                                ? "bg-white/10 border-white/20 text-white"
-                                : "bg-zinc-950/30 border-zinc-800/50 text-zinc-400 hover:border-zinc-700"
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="p-2 bg-zinc-800 rounded-lg">
-                                  <product.icon className="w-4 h-4 text-zinc-400" />
-                                </div>
-                                <div className="text-left">
-                                  <div className="text-sm font-medium text-white">{product.name}</div>
-                                  <div className="text-xs text-zinc-500">{product.category}</div>
-                                </div>
-                              </div>
-                              <div className="text-sm font-semibold">{product.co2} kg</div>
-                            </button>
-                          ))}
-                        </div>
-
-                        {selectedProduct && (
-                          <motion.div 
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl space-y-2"
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs text-emerald-500 uppercase tracking-wider font-bold">Estimated Impact</span>
-                              <span className="text-lg font-bold text-white">{selectedProduct.co2} kg CO2e</span>
-                            </div>
-                            <div className="flex items-center justify-between border-t border-emerald-500/10 pt-2">
-                              <span className="text-[10px] text-emerald-500/60 uppercase tracking-wider font-bold">Precision Rate</span>
-                              <span className="text-xs font-bold text-emerald-500/80">92%</span>
-                            </div>
-                          </motion.div>
-                        )}
+                    <TabsContent value="image" className="mt-6">
+                      <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-zinc-800 rounded-2xl bg-zinc-950/30">
+                        <Camera className="w-12 h-12 text-zinc-600 mb-4" />
+                        <p className="text-zinc-500 text-sm text-center mb-6">Scan your receipts or product labels to automatically log emissions</p>
+                        <Button variant="outline" className="border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800">
+                          Coming Soon
+                        </Button>
                       </div>
-
-                      <Button 
-                        onClick={() => {
-                          setIsProductMode(true);
-                          handleAddEmission(true);
-                        }}
-                        disabled={isLogging || !selectedProduct}
-                        className="w-full h-14 bg-white hover:bg-zinc-200 text-black font-semibold rounded-xl text-base transition-all disabled:opacity-50"
-                      >
-                        {isLogging ? <Loader2 className="w-5 h-5 animate-spin" /> : "Log Product Impact"}
-                      </Button>
                     </TabsContent>
                   </Tabs>
 
