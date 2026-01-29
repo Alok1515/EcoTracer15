@@ -60,8 +60,8 @@ export function Leaderboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-1">Global Leaderboard</h2>
-          <p className="text-sm text-zinc-500">Ranking by lowest net carbon emission</p>
+          <h2 className="text-2xl font-bold text-foreground mb-1">Global Leaderboard</h2>
+          <p className="text-sm text-muted-foreground">Ranking by lowest net carbon emission</p>
         </div>
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2 flex items-center gap-2">
           <Leaf className="w-4 h-4 text-emerald-500" />
@@ -77,7 +77,7 @@ export function Leaderboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
           >
-            <Card className={`bg-zinc-900/40 border-zinc-800 hover:bg-zinc-800/40 transition-all ${entry.rank === 1 ? 'border-amber-500/30 bg-amber-500/5' : ''}`}>
+            <Card className={`bg-card/40 border-border hover:bg-accent/40 transition-all ${entry.rank === 1 ? 'border-amber-500/30 bg-amber-500/5' : ''}`}>
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 sm:gap-6">
@@ -85,12 +85,12 @@ export function Leaderboard() {
                       {getRankIcon(entry.rank)}
                     </div>
                     
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700 overflow-hidden">
-                      <User className="w-6 h-6 text-zinc-400" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-accent flex items-center justify-center border border-border overflow-hidden">
+                      <User className="w-6 h-6 text-muted-foreground" />
                     </div>
 
                     <div>
-                      <h3 className="text-base sm:text-lg font-bold text-white leading-tight">
+                      <h3 className="text-base sm:text-lg font-bold text-foreground leading-tight">
                         {entry.name}
                       </h3>
                       <div className="flex items-center gap-3 mt-1">
@@ -107,10 +107,10 @@ export function Leaderboard() {
                   </div>
 
                   <div className="text-right">
-                    <div className={`text-xl font-black ${entry.netEmission <= 0 ? 'text-emerald-500' : 'text-white'}`}>
-                      {entry.netEmission.toFixed(1)} <span className="text-[10px] uppercase tracking-wider text-zinc-500 ml-1">kg</span>
+                    <div className={`text-xl font-black ${entry.netEmission <= 0 ? 'text-emerald-500' : 'text-foreground'}`}>
+                      {entry.netEmission.toFixed(1)} <span className="text-[10px] uppercase tracking-wider text-muted-foreground ml-1">kg</span>
                     </div>
-                    <div className="text-[10px] uppercase tracking-widest text-zinc-600 font-bold mt-1">
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-bold mt-1">
                       Net Emission
                     </div>
                   </div>
@@ -121,10 +121,10 @@ export function Leaderboard() {
         ))}
 
         {leaderboard.length === 0 && (
-          <div className="text-center py-20 bg-zinc-900/20 border border-dashed border-zinc-800 rounded-3xl">
-            <User className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-zinc-500">No active users yet</h3>
-            <p className="text-sm text-zinc-600">Be the first to log an activity!</p>
+          <div className="text-center py-20 bg-muted/20 border border-dashed border-border rounded-3xl">
+            <User className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
+            <h3 className="text-lg font-bold text-muted-foreground">No active users yet</h3>
+            <p className="text-sm text-muted-foreground/60">Be the first to log an activity!</p>
           </div>
         )}
       </div>

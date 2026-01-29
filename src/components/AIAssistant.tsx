@@ -112,18 +112,18 @@ export function AIAssistant({ stats, user }: { stats?: any, user?: any }) {
   };
 
   return (
-    <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2rem] overflow-hidden flex flex-col h-[700px] border">
+    <Card className="bg-card/40 border-border rounded-[2rem] overflow-hidden flex flex-col h-[700px] border">
       {/* Header */}
-      <div className="p-6 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/60 backdrop-blur-xl">
+      <div className="p-6 border-b border-border flex items-center justify-between bg-card/60 backdrop-blur-xl">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center border border-zinc-700">
-            <Bot className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center border border-border">
+            <Bot className="w-6 h-6 text-foreground" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               Carbon Assistant
             </h2>
-            <p className="text-xs text-zinc-500">AI-powered personalized tips</p>
+            <p className="text-xs text-muted-foreground">AI-powered personalized tips</p>
           </div>
         </div>
         <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
@@ -147,8 +147,8 @@ export function AIAssistant({ stats, user }: { stats?: any, user?: any }) {
             >
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
                 message.role === "assistant" 
-                  ? "bg-zinc-800 border-zinc-700 text-white" 
-                  : "bg-white border-white text-black"
+                  ? "bg-accent border-border text-foreground" 
+                  : "bg-foreground border-foreground text-background"
               }`}>
                 {message.role === "assistant" ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
               </div>
@@ -156,16 +156,16 @@ export function AIAssistant({ stats, user }: { stats?: any, user?: any }) {
                 <div className={`flex flex-col gap-1.5 max-w-[80%] ${message.role === "user" ? "items-end" : ""}`}>
                   <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
                     message.role === "assistant"
-                      ? "bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 shadow-sm"
-                      : "bg-white text-black font-medium shadow-sm"
+                      ? "bg-accent/50 border border-border/50 text-foreground/80 shadow-sm"
+                      : "bg-foreground text-background font-medium shadow-sm"
                   }`}>
                     {message.role === "assistant" ? (
-                      <div className="prose prose-sm prose-invert max-w-none 
-                        prose-p:leading-relaxed prose-p:text-zinc-300 prose-p:mb-4 last:prose-p:mb-0
-                        prose-headings:text-white prose-headings:font-bold prose-headings:mb-3 prose-headings:mt-6 first:prose-headings:mt-0
-                        prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-xl
-                        prose-code:text-emerald-400 prose-code:bg-zinc-950 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none
-                        prose-strong:text-white prose-strong:font-bold
+                      <div className="prose prose-sm dark:prose-invert max-w-none 
+                        prose-p:leading-relaxed prose-p:text-foreground/80 prose-p:mb-4 last:prose-p:mb-0
+                        prose-headings:text-foreground prose-headings:font-bold prose-headings:mb-3 prose-headings:mt-6 first:prose-headings:mt-0
+                        prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-xl
+                        prose-code:text-emerald-500 prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none
+                        prose-strong:text-foreground prose-strong:font-bold
                         prose-ul:my-4 prose-li:my-1 prose-ul:list-disc
                         prose-ol:my-4 prose-li:my-1 prose-ol:list-decimal
                         prose-blockquote:border-l-emerald-500 prose-blockquote:bg-emerald-500/5 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg">
@@ -177,7 +177,7 @@ export function AIAssistant({ stats, user }: { stats?: any, user?: any }) {
                       message.content
                     )}
                   </div>
-                  <span className="text-[10px] text-zinc-600 px-1">{message.timestamp}</span>
+                  <span className="text-[10px] text-muted-foreground/60 px-1">{message.timestamp}</span>
                 </div>
             </motion.div>
           ))}
@@ -189,26 +189,26 @@ export function AIAssistant({ stats, user }: { stats?: any, user?: any }) {
             animate={{ opacity: 1 }}
             className="flex gap-4"
           >
-            <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 text-white flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-accent border border-border text-foreground flex items-center justify-center">
               <Bot className="w-4 h-4" />
             </div>
-            <div className="p-4 rounded-2xl bg-zinc-800/30 border border-zinc-700/30 flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-zinc-500" />
-              <span className="text-xs text-zinc-500 font-medium italic">Carbon Assistant is thinking...</span>
+            <div className="p-4 rounded-2xl bg-accent/30 border border-border/30 flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              <span className="text-xs text-muted-foreground font-medium italic">Carbon Assistant is thinking...</span>
             </div>
           </motion.div>
         )}
       </div>
 
       {/* Input Area */}
-      <div className="p-6 bg-zinc-900/60 backdrop-blur-xl border-t border-zinc-800 space-y-4">
+      <div className="p-6 bg-card/60 backdrop-blur-xl border-t border-border space-y-4">
         {/* Suggestions */}
         <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
           {suggestions.map((suggestion) => (
             <button
               key={suggestion}
               onClick={() => handleSend(suggestion)}
-              className="whitespace-nowrap px-4 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-xs text-zinc-400 hover:text-white hover:bg-zinc-800 hover:border-zinc-600 transition-all shrink-0"
+              className="whitespace-nowrap px-4 py-2 rounded-xl bg-accent/50 border border-border/50 text-xs text-muted-foreground hover:text-foreground hover:bg-accent hover:border-accent-foreground/20 transition-all shrink-0"
             >
               {suggestion}
             </button>
@@ -217,7 +217,7 @@ export function AIAssistant({ stats, user }: { stats?: any, user?: any }) {
 
         <div className="relative group">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-            <button className="p-2 rounded-lg hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 transition-colors">
+            <button className="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors">
               <ImageIcon className="w-5 h-5" />
             </button>
           </div>
@@ -227,7 +227,7 @@ export function AIAssistant({ stats, user }: { stats?: any, user?: any }) {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder="Ask about carbon reduction..."
-            className="w-full bg-zinc-950/50 border-zinc-800 h-14 rounded-2xl pl-14 pr-16 text-zinc-300 placeholder:text-zinc-600 focus:ring-0 focus:border-zinc-600 transition-all"
+            className="w-full bg-muted/50 border-border h-14 rounded-2xl pl-14 pr-16 text-foreground placeholder:text-muted-foreground/50 focus:ring-0 focus:border-accent transition-all"
           />
           
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -235,7 +235,7 @@ export function AIAssistant({ stats, user }: { stats?: any, user?: any }) {
               onClick={() => handleSend()}
               disabled={!input.trim() || isLoading}
               size="icon"
-              className="bg-zinc-800 hover:bg-white hover:text-black text-zinc-400 h-10 w-10 rounded-xl transition-all"
+              className="bg-accent hover:bg-foreground hover:text-background text-muted-foreground h-10 w-10 rounded-xl transition-all"
             >
               <Send className="w-5 h-5" />
             </Button>

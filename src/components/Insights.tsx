@@ -80,7 +80,7 @@ export function Insights({ stats, activities, user }: InsightsProps) {
 
   if (isLoading) {
     return (
-      <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2rem] overflow-hidden border">
+      <Card className="bg-card/40 border-border rounded-[2rem] overflow-hidden border">
         <CardContent className="p-12 flex flex-col items-center justify-center text-center space-y-6">
           <div className="relative">
             <div className="w-20 h-20 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
@@ -93,8 +93,8 @@ export function Insights({ stats, activities, user }: InsightsProps) {
             />
           </div>
           <div className="space-y-2">
-            <h3 className="text-xl font-bold text-white">Generating Personalized Insights</h3>
-            <p className="text-zinc-500 text-sm max-w-xs mx-auto">
+            <h3 className="text-xl font-bold text-foreground">Generating Personalized Insights</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
               Our AI is analyzing your carbon footprint data to provide actionable reduction tips.
             </p>
           </div>
@@ -109,16 +109,16 @@ export function Insights({ stats, activities, user }: InsightsProps) {
 
   if (error) {
     return (
-      <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2rem] overflow-hidden border">
+      <Card className="bg-card/40 border-border rounded-[2rem] overflow-hidden border">
         <CardContent className="p-12 flex flex-col items-center justify-center text-center space-y-6">
           <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
             <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
           <div className="space-y-2">
-            <h3 className="text-xl font-bold text-white">Couldn't Generate Insights</h3>
-            <p className="text-zinc-500 text-sm">{error}</p>
+            <h3 className="text-xl font-bold text-foreground">Couldn't Generate Insights</h3>
+            <p className="text-muted-foreground text-sm">{error}</p>
           </div>
-          <Button onClick={generateInsights} variant="outline" className="border-zinc-800 hover:bg-zinc-800">
+          <Button onClick={generateInsights} variant="outline" className="border-border hover:bg-accent">
             Try Again
           </Button>
         </CardContent>
@@ -132,7 +132,7 @@ export function Insights({ stats, activities, user }: InsightsProps) {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-zinc-900/40 border border-zinc-800 rounded-[2rem] p-8 relative overflow-hidden"
+        className="bg-card/40 border border-border rounded-[2rem] p-8 relative overflow-hidden"
       >
         <div className="absolute top-0 right-0 p-8 opacity-10">
           <Sparkles className="w-24 h-24 text-emerald-500" />
@@ -144,18 +144,18 @@ export function Insights({ stats, activities, user }: InsightsProps) {
               <Sparkles className="w-4 h-4" />
               <span>AI Sustainability Report</span>
             </div>
-            <h2 className="text-2xl font-bold text-white">Your Carbon Footprint Analysis</h2>
-            <p className="text-zinc-400 leading-relaxed">
+            <h2 className="text-2xl font-bold text-foreground">Your Carbon Footprint Analysis</h2>
+            <p className="text-muted-foreground leading-relaxed">
               {data?.summary}
             </p>
           </div>
           
           <div className="flex-shrink-0 bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl flex flex-col items-center text-center min-w-[200px]">
             <span className="text-xs text-emerald-500 font-bold uppercase tracking-wider mb-1">Impact Level</span>
-            <span className="text-3xl font-black text-white">Medium</span>
+            <span className="text-3xl font-black text-foreground">Medium</span>
             <div className="mt-4 flex gap-1">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className={`w-8 h-1.5 rounded-full ${i <= 3 ? "bg-emerald-500" : "bg-zinc-800"}`} />
+                <div key={i} className={`w-8 h-1.5 rounded-full ${i <= 3 ? "bg-emerald-500" : "bg-muted"}`} />
               ))}
             </div>
           </div>
@@ -173,11 +173,11 @@ export function Insights({ stats, activities, user }: InsightsProps) {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className="bg-zinc-900/40 border-zinc-800 h-full hover:bg-zinc-900/60 transition-all border group">
+              <Card className="bg-card/40 border-border h-full hover:bg-card/60 transition-all border group">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-6">
-                    <div className="p-3 rounded-xl bg-zinc-800 border border-zinc-700 group-hover:bg-emerald-500/10 group-hover:border-emerald-500/20 transition-colors">
-                      <Icon className="w-5 h-5 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
+                    <div className="p-3 rounded-xl bg-accent border border-border group-hover:bg-emerald-500/10 group-hover:border-emerald-500/20 transition-colors">
+                      <Icon className="w-5 h-5 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
                     </div>
                     <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                       insight.impact === "High" ? "bg-red-500/10 text-red-500 border border-red-500/20" :
@@ -188,13 +188,13 @@ export function Insights({ stats, activities, user }: InsightsProps) {
                     </div>
                   </div>
                   
-                  <h3 className="text-lg font-bold text-white mb-2">{insight.title}</h3>
-                  <p className="text-sm text-zinc-500 leading-relaxed mb-6">
+                  <h3 className="text-lg font-bold text-foreground mb-2">{insight.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-6">
                     {insight.description}
                   </p>
                   
-                  <div className="pt-4 border-t border-zinc-800/50 flex items-center justify-between">
-                    <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{insight.category}</span>
+                  <div className="pt-4 border-t border-border/50 flex items-center justify-between">
+                    <span className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-widest">{insight.category}</span>
                     <button className="text-emerald-500 text-xs font-bold flex items-center gap-1 hover:gap-2 transition-all">
                       Learn how <ChevronRight className="w-3 h-3" />
                     </button>
@@ -211,28 +211,28 @@ export function Insights({ stats, activities, user }: InsightsProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="bg-white rounded-[2rem] p-8 flex flex-col md:flex-row items-center justify-between gap-8"
+        className="bg-card border border-border rounded-[2rem] p-8 flex flex-col md:flex-row items-center justify-between gap-8"
       >
         <div className="flex items-center gap-6">
-          <div className="w-16 h-16 rounded-2xl bg-black flex items-center justify-center shrink-0">
-            <TrendingDown className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 rounded-2xl bg-foreground flex items-center justify-center shrink-0">
+            <TrendingDown className="w-8 h-8 text-background" />
           </div>
           <div className="space-y-1">
-            <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Next Week's Goal</div>
-            <h3 className="text-xl font-black text-black">{data?.recommendation}</h3>
-            <p className="text-zinc-600 text-sm">Follow this key recommendation to see a significant drop in your emissions.</p>
+            <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.2em]">Next Week's Goal</div>
+            <h3 className="text-xl font-black text-foreground">{data?.recommendation}</h3>
+            <p className="text-muted-foreground/80 text-sm">Follow this key recommendation to see a significant drop in your emissions.</p>
           </div>
         </div>
         
-        <Button className="bg-black hover:bg-zinc-800 text-white rounded-xl h-14 px-8 font-bold whitespace-nowrap">
+        <Button className="bg-foreground hover:bg-foreground/90 text-background rounded-xl h-14 px-8 font-bold whitespace-nowrap">
           Set as Goal
         </Button>
       </motion.div>
 
       {/* Info Box */}
-      <div className="flex items-start gap-4 p-6 bg-zinc-950/50 border border-zinc-800 rounded-2xl">
-        <Info className="w-5 h-5 text-zinc-500 shrink-0 mt-0.5" />
-        <p className="text-xs text-zinc-500 leading-relaxed">
+      <div className="flex items-start gap-4 p-6 bg-muted/50 border border-border rounded-2xl">
+        <Info className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
+        <p className="text-xs text-muted-foreground leading-relaxed">
           These insights are generated by analyzing your recent activity history, category distribution, and community averages. 
           The more activities you log, the more precise and helpful these recommendations become.
         </p>

@@ -127,63 +127,63 @@ export function Settings({ onUpdate }: SettingsProps) {
   return (
     <div className="space-y-8 pb-12">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Profile Settings</h1>
-        <p className="text-zinc-500">Manage your account information and preferences</p>
+        <h1 className="text-3xl font-bold text-foreground tracking-tight">Profile Settings</h1>
+        <p className="text-muted-foreground">Manage your account information and preferences</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2rem] overflow-hidden">
+          <Card className="bg-card/40 border-border rounded-[2rem] overflow-hidden">
             <CardHeader className="p-8 pb-4">
-              <CardTitle className="text-xl font-semibold text-white">Personal Information</CardTitle>
-              <CardDescription className="text-zinc-500">Update your account details</CardDescription>
+              <CardTitle className="text-xl font-semibold text-foreground">Personal Information</CardTitle>
+              <CardDescription className="text-muted-foreground">Update your account details</CardDescription>
             </CardHeader>
             <CardContent className="p-8 pt-4">
               <form onSubmit={handleUpdate} className="space-y-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm text-zinc-400 font-medium">Full Name</Label>
+                    <Label htmlFor="name" className="text-sm text-muted-foreground font-medium">Full Name</Label>
                     <div className="relative">
                       <Input
                         id="name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="bg-zinc-950/50 border-zinc-800 h-12 rounded-xl pl-12 text-zinc-300 focus:ring-emerald-500"
+                        className="bg-muted/50 border-border h-12 rounded-xl pl-12 text-foreground focus:ring-emerald-500"
                         placeholder="Your name"
                         required
                       />
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm text-zinc-400 font-medium">Email Address</Label>
+                    <Label htmlFor="email" className="text-sm text-muted-foreground font-medium">Email Address</Label>
                     <div className="relative">
                       <Input
                         id="email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="bg-zinc-950/50 border-zinc-800 h-12 rounded-xl pl-12 text-zinc-300 focus:ring-emerald-500"
+                        className="bg-muted/50 border-border h-12 rounded-xl pl-12 text-foreground focus:ring-emerald-500"
                         placeholder="your@email.com"
                         required
                       />
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     </div>
                   </div>
 
-                  <div className="space-y-2 pt-4 border-t border-zinc-800/50">
-                    <Label htmlFor="password" className="text-sm text-zinc-400 font-medium">New Password (leave blank to keep current)</Label>
+                  <div className="space-y-2 pt-4 border-t border-border/50">
+                    <Label htmlFor="password" className="text-sm text-muted-foreground font-medium">New Password (leave blank to keep current)</Label>
                     <div className="relative">
                       <Input
                         id="password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="bg-zinc-950/50 border-zinc-800 h-12 rounded-xl pl-12 text-zinc-300 focus:ring-emerald-500"
+                        className="bg-muted/50 border-border h-12 rounded-xl pl-12 text-foreground focus:ring-emerald-500"
                         placeholder="••••••••"
                       />
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     </div>
                   </div>
                 </div>
@@ -206,7 +206,7 @@ export function Settings({ onUpdate }: SettingsProps) {
                 <Button 
                   type="submit" 
                   disabled={isUpdating}
-                  className="w-full h-12 bg-white hover:bg-zinc-200 text-black font-bold rounded-xl transition-all"
+                  className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 font-bold rounded-xl transition-all"
                 >
                   {isUpdating ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
                   Save Changes
@@ -217,16 +217,16 @@ export function Settings({ onUpdate }: SettingsProps) {
         </div>
 
         <div className="space-y-6">
-          <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2rem] overflow-hidden border-red-500/20">
+          <Card className="bg-card/40 border-border rounded-[2rem] overflow-hidden border-red-500/20">
             <CardHeader className="p-8 pb-4">
               <CardTitle className="text-xl font-semibold text-red-500 flex items-center gap-2">
                 <Trash2 className="w-5 h-5" />
                 Danger Zone
               </CardTitle>
-              <CardDescription className="text-zinc-500">Irreversible actions for your account</CardDescription>
+              <CardDescription className="text-muted-foreground">Irreversible actions for your account</CardDescription>
             </CardHeader>
             <CardContent className="p-8 pt-4">
-              <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
+              <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
                 Once you delete your account, there is no going back. All your activities, stats, and carbon footprint data will be permanently removed.
               </p>
               
@@ -236,16 +236,16 @@ export function Settings({ onUpdate }: SettingsProps) {
                     Delete My Account
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
+                <AlertDialogContent className="bg-popover border-border text-popover-foreground">
                   <AlertDialogHeader>
                     <AlertDialogTitle className="text-xl font-bold">Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription className="text-zinc-500">
+                    <AlertDialogDescription className="text-muted-foreground">
                       This action cannot be undone. This will permanently delete your account
                       and remove all data from our servers.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700 rounded-xl">Cancel</AlertDialogCancel>
+                    <AlertDialogCancel className="bg-accent border-border text-foreground hover:bg-accent/80 rounded-xl">Cancel</AlertDialogCancel>
                     <AlertDialogAction 
                       onClick={handleDeleteAccount}
                       className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl"
