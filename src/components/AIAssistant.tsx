@@ -72,11 +72,10 @@ export function AIAssistant({ stats, user }: { stats?: any, user?: any }) {
         content: `You are assisting ${user?.name || 'the user'}. Their current net emissions balance is ${stats?.netBalance?.toFixed(2) || '0.00'} kg CO2e. This is the primary metric (Total emissions - offsets). Always refer to this as 'Net Emissions' and prioritize it over lifetime emissions.`
       };
 
-      const response = await fetch("http://localhost:8080/api/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           messages: [contextMessage, ...messages, userMessage].map(m => ({
