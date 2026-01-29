@@ -3,6 +3,7 @@ package com.carbontracker.service;
 import com.carbontracker.dto.ActivityDTO;
 import com.carbontracker.dto.ActivityResponseDTO;
 import com.carbontracker.dto.DashboardStatsDTO;
+import com.carbontracker.dto.LeaderboardDTO;
 import com.carbontracker.model.Activity;
 import com.carbontracker.model.User;
 import com.carbontracker.repository.ActivityRepository;
@@ -275,5 +276,52 @@ public class ActivityService {
                 categoryEmissions,
                 timelineData
         );
+    }
+
+    public List<LeaderboardDTO> getLeaderboard() {
+        List<User> allUsers = userRepository.findAll();
+        List<Activity> allActivities = activityRepository.findAll();
+
+        Map<String, List<Activity>> activitiesByUser = allActivities.stream()
+                .filter(a -> a.getUserId() != null)
+                .collect(Collectors.groupingBy(Activity::getUserId));
+
+        List<LeaderboardDTO> leaderboard = new ArrayList<>();
+
+        for (User user : allUsers) {
+            List<Activity> userActivities = activitiesByUser.getOrDefault(user.getId(), new ArrayList<>());
+            
+            // Exclude users with no activities
+            if (userActivities.isEmpty()) {
+                continue;
+            }
+
+            Double netEmission = userActivities.stream()
+                    .filter(a -> a.getEmission() != null)
+                    .mapToDouble(Activity::getEmission)
+                    .sum();
+            
+            int treesPlanted = userActivities.stream()
+                    .filter(a -> a.getType() == Activity.ActivityType.TREE_PLANTING)
+                    .mapToInt(a -> a.getValue() != null ? a.getValue().intValue() : 0)
+                    .sum();
+
+            leaderboard.add(LeaderboardDTO.builder()
+                    .name(user.getName() != null && !user.getName().isEmpty() ? user.getName() : user.getEmail())
+                    .netEmission(netEmission)
+                    .streakCount(user.getStreakCount())
+                    .treesPlanted(treesPlanted)
+                    .build());
+        }
+
+        // Sort by net emission ascending (lowest on top)
+        leaderboard.sort(Comparator.comparing(LeaderboardDTO::getNetEmission));
+
+        // Assign ranks
+        for (int i = 0; i < leaderboard.size(); i++) {
+            leaderboard.get(i).setRank(i + 1);
+        }
+
+        return leaderboard;
     }
 }

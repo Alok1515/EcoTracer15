@@ -67,6 +67,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { AIAssistant } from "@/components/AIAssistant";
+import { Leaderboard } from "@/components/Leaderboard";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -1002,10 +1003,24 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
             </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
 
-        {activeView === "AI Assistant" && (
+          {activeView === "Leaderboard" && (
+            <motion.div
+              key="leaderboard"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+              className="max-w-4xl mx-auto"
+            >
+              <Leaderboard />
+            </motion.div>
+          )}
+
+          {activeView === "AI Assistant" && (
+
           <motion.div
             key="ai-assistant"
             initial={{ opacity: 0, y: 20 }}

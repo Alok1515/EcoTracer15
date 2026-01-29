@@ -1,12 +1,15 @@
 package com.carbontracker.controller;
 
 import com.carbontracker.dto.DashboardStatsDTO;
+import com.carbontracker.dto.LeaderboardDTO;
 import com.carbontracker.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/emission")
@@ -28,5 +31,10 @@ public class EmissionController {
     @GetMapping("/stats")
     public ResponseEntity<DashboardStatsDTO> getDashboardStats() {
         return ResponseEntity.ok(activityService.getDashboardStats());
+    }
+
+    @GetMapping("/leaderboard")
+    public ResponseEntity<List<LeaderboardDTO>> getLeaderboard() {
+        return ResponseEntity.ok(activityService.getLeaderboard());
     }
 }
