@@ -99,6 +99,8 @@ export default function DashboardPage() {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [precisionMode, setPrecisionMode] = useState(true);
   const [isProductMode, setIsProductMode] = useState(false);
+  const [showStreakModal, setShowStreakModal] = useState(false);
+  const [modalStreakCount, setModalStreakCount] = useState(0);
 
   // Tree Planting State
   const [showTreeModal, setShowTreeModal] = useState(false);
@@ -341,10 +343,17 @@ export default function DashboardPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
         setIsSuccess(true);
         setAmount("");
         setSelectedProduct(null);
         await fetchData();
+        
+        if (data.firstToday) {
+          setModalStreakCount(data.streakCount);
+          setShowStreakModal(true);
+        }
+
         setTimeout(() => setIsSuccess(false), 3000);
       }
     } catch (err) {
@@ -1112,6 +1121,56 @@ export default function DashboardPage() {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Streak Congratulations Modal */}
+      <Dialog open={showStreakModal} onOpenChange={setShowStreakModal}>
+        <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-[400px] p-0 overflow-hidden">
+          <div className="relative p-8 flex flex-col items-center text-center">
+            {/* Background Decoration */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-orange-500/10 blur-[80px] -z-10" />
+            
+            <div className="w-20 h-20 bg-orange-500/20 border border-orange-500/30 rounded-3xl flex items-center justify-center mb-6 relative">
+              <Flame className="w-10 h-10 text-orange-500 fill-orange-500" />
+              <motion.div 
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="absolute -top-2 -right-2"
+              >
+                <Sparkles className="w-6 h-6 text-amber-500" />
+              </motion.div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-white mb-2">Awesome Work!</h2>
+            <p className="text-zinc-400 text-sm mb-6">
+              You've logged your first activity today. Your commitment to the planet is inspiring!
+            </p>
+
+            <div className="bg-zinc-950/50 border border-zinc-800 rounded-2xl p-6 w-full mb-8">
+              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] mb-1">Current Streak</div>
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-5xl font-black text-white">{modalStreakCount}</span>
+                <span className="text-2xl font-bold text-orange-500">Days</span>
+              </div>
+            </div>
+
+            <div className="space-y-4 w-full">
+              <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex gap-3 text-left">
+                <Leaf className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                <p className="text-xs text-emerald-500/90 leading-relaxed">
+                  Consistency is key to understanding and reducing your carbon footprint. You're making a real difference!
+                </p>
+              </div>
+              
+              <Button 
+                onClick={() => setShowStreakModal(false)}
+                className="w-full h-12 bg-white hover:bg-zinc-200 text-black font-bold rounded-xl transition-all"
+              >
+                Keep it up!
+              </Button>
             </div>
           </div>
         </DialogContent>

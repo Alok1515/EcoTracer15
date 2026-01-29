@@ -1,6 +1,7 @@
 package com.carbontracker.controller;
 
 import com.carbontracker.dto.ActivityDTO;
+import com.carbontracker.dto.ActivityResponseDTO;
 import com.carbontracker.model.Activity;
 import com.carbontracker.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class ActivityController {
     private ActivityService activityService;
 
     @PostMapping("/add")
-    public ResponseEntity<Activity> addActivity(@RequestBody ActivityDTO dto) {
+    public ResponseEntity<ActivityResponseDTO> addActivity(@RequestBody ActivityDTO dto) {
         return ResponseEntity.ok(activityService.addActivity(dto));
     }
 

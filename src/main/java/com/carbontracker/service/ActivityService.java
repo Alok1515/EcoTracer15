@@ -1,6 +1,7 @@
 package com.carbontracker.service;
 
 import com.carbontracker.dto.ActivityDTO;
+import com.carbontracker.dto.ActivityResponseDTO;
 import com.carbontracker.dto.DashboardStatsDTO;
 import com.carbontracker.model.Activity;
 import com.carbontracker.model.User;
@@ -29,7 +30,7 @@ public class ActivityService {
     @Autowired
     private EmissionFactorService emissionFactorService;
 
-    public Activity addActivity(ActivityDTO dto) {
+    public ActivityResponseDTO addActivity(ActivityDTO dto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -47,9 +48,16 @@ public class ActivityService {
                 .date(LocalDateTime.now())
                 .build();
 
+        boolean isFirstToday = user.getLastLogDate() == null || !user.getLastLogDate().equals(LocalDate.now());
         updateUserStreak(user);
 
-        return activityRepository.save(activity);
+        Activity savedActivity = activityRepository.save(activity);
+        
+        return ActivityResponseDTO.builder()
+                .activity(savedActivity)
+                .isFirstToday(isFirstToday)
+                .streakCount(user.getStreakCount())
+                .build();
     }
 
     private void updateUserStreak(User user) {
