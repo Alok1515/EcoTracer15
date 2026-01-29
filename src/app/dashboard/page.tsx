@@ -417,13 +417,13 @@ export default function DashboardPage() {
         <Card className="bg-zinc-900/40 border-zinc-800 rounded-2xl">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-zinc-400">Total Activities</span>
+              <span className="text-sm text-zinc-400">Lifetime Emissions</span>
               <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
                 <span className="text-zinc-400 text-lg">+</span>
               </div>
             </div>
             <div className="text-3xl font-bold text-white mb-1">{formatValue(stats.total)} kg</div>
-            <div className="text-xs text-zinc-500">Total logged CO2</div>
+            <div className="text-xs text-zinc-500">Lifetime logged CO2</div>
           </CardContent>
         </Card>
 
