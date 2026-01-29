@@ -13,11 +13,14 @@ import java.util.List;
 @Service
 public class ChatService {
 
-    @Value("${gemini.api.key}")
+    @Value("${openrouter.api.key}")
     private String apiKey;
 
-    @Value("${gemini.api.url}")
+    @Value("${openrouter.api.url}")
     private String apiUrl;
+
+    @Value("${openrouter.api.model}")
+    private String apiModel;
 
     private final WebClient webClient;
 
@@ -39,40 +42,26 @@ public class ChatService {
             return Mono.just(new ChatResponse(null, "No messages provided"));
         }
 
-        // Format history for Gemini
-        List<GeminiContent> contents = new ArrayList<>();
+        // Format history for OpenRouter (OpenAI compatible)
+        List<OpenRouterMessage> orMessages = new ArrayList<>();
+        orMessages.add(new OpenRouterMessage("system", systemPrompt));
         
-        // Gemini history must start with user
-        List<ChatRequest.ChatMessage> history = messages.subList(0, messages.size() - 1);
-        int startIdx = 0;
-        while (startIdx < history.size() && !"user".equals(history.get(startIdx).getRole())) {
-            startIdx++;
+        for (ChatRequest.ChatMessage m : messages) {
+            orMessages.add(new OpenRouterMessage(m.getRole(), m.getContent()));
         }
 
-        for (int i = startIdx; i < history.size(); i++) {
-            ChatRequest.ChatMessage m = history.get(i);
-            contents.add(new GeminiContent(
-                "assistant".equals(m.getRole()) ? "model" : "user",
-                List.of(new GeminiPart(m.getContent()))
-            ));
-        }
-
-        // Current prompt combining system prompt and user message
-        String userMessage = messages.get(messages.size() - 1).getContent();
-        String fullPrompt = systemPrompt + "\n\nUser: " + userMessage;
-        
-        contents.add(new GeminiContent("user", List.of(new GeminiPart(fullPrompt))));
-
-        GeminiRequest geminiRequest = new GeminiRequest(contents);
+        OpenRouterRequest orRequest = new OpenRouterRequest(apiModel, orMessages);
 
         return webClient.post()
-                .uri(apiUrl + "?key=" + apiKey)
-                .bodyValue(geminiRequest)
+                .uri(apiUrl)
+                .header("Authorization", "Bearer " + apiKey)
+                .header("Content-Type", "application/json")
+                .bodyValue(orRequest)
                 .retrieve()
-                .bodyToMono(GeminiResponse.class)
+                .bodyToMono(OpenRouterResponse.class)
                 .map(res -> {
-                    if (res.getCandidates() != null && !res.getCandidates().isEmpty()) {
-                        String text = res.getCandidates().get(0).getContent().getParts().get(0).getText();
+                    if (res.getChoices() != null && !res.getChoices().isEmpty()) {
+                        String text = res.getChoices().get(0).getMessage().getContent();
                         return new ChatResponse(text);
                     }
                     return new ChatResponse(null, "Failed to get AI response");
@@ -80,64 +69,51 @@ public class ChatService {
                 .onErrorResume(e -> Mono.just(new ChatResponse(null, "Error: " + e.getMessage())));
     }
 
-    // Gemini API Request/Response Models (Manual implementation without Lombok)
-    public static class GeminiRequest {
-        private List<GeminiContent> contents;
-        private GenerationConfig generationConfig = new GenerationConfig();
+    // OpenRouter (OpenAI compatible) API Models
+    public static class OpenRouterRequest {
+        private String model;
+        private List<OpenRouterMessage> messages;
 
-        public GeminiRequest() {}
-        public GeminiRequest(List<GeminiContent> contents) {
-            this.contents = contents;
+        public OpenRouterRequest() {}
+        public OpenRouterRequest(String model, List<OpenRouterMessage> messages) {
+            this.model = model;
+            this.messages = messages;
         }
 
-        public List<GeminiContent> getContents() { return contents; }
-        public void setContents(List<GeminiContent> contents) { this.contents = contents; }
-        public GenerationConfig getGenerationConfig() { return generationConfig; }
-        public void setGenerationConfig(GenerationConfig generationConfig) { this.generationConfig = generationConfig; }
+        public String getModel() { return model; }
+        public void setModel(String model) { this.model = model; }
+        public List<OpenRouterMessage> getMessages() { return messages; }
+        public void setMessages(List<OpenRouterMessage> messages) { this.messages = messages; }
     }
 
-    public static class GenerationConfig {
-        private int maxOutputTokens = 1000;
-        public GenerationConfig() {}
-        public int getMaxOutputTokens() { return maxOutputTokens; }
-        public void setMaxOutputTokens(int maxOutputTokens) { this.maxOutputTokens = maxOutputTokens; }
-    }
-
-    public static class GeminiContent {
+    public static class OpenRouterMessage {
         private String role;
-        private List<GeminiPart> parts;
+        private String content;
 
-        public GeminiContent() {}
-        public GeminiContent(String role, List<GeminiPart> parts) {
+        public OpenRouterMessage() {}
+        public OpenRouterMessage(String role, String content) {
             this.role = role;
-            this.parts = parts;
+            this.content = content;
         }
 
         public String getRole() { return role; }
         public void setRole(String role) { this.role = role; }
-        public List<GeminiPart> getParts() { return parts; }
-        public void setParts(List<GeminiPart> parts) { this.parts = parts; }
+        public String getContent() { return content; }
+        public void setContent(String content) { this.content = content; }
     }
 
-    public static class GeminiPart {
-        private String text;
-        public GeminiPart() {}
-        public GeminiPart(String text) { this.text = text; }
-        public String getText() { return text; }
-        public void setText(String text) { this.text = text; }
-    }
+    public static class OpenRouterResponse {
+        private List<Choice> choices;
 
-    public static class GeminiResponse {
-        private List<Candidate> candidates;
-        public GeminiResponse() {}
-        public List<Candidate> getCandidates() { return candidates; }
-        public void setCandidates(List<Candidate> candidates) { this.candidates = candidates; }
+        public OpenRouterResponse() {}
+        public List<Choice> getChoices() { return choices; }
+        public void setChoices(List<Choice> choices) { this.choices = choices; }
 
-        public static class Candidate {
-            private GeminiContent content;
-            public Candidate() {}
-            public GeminiContent getContent() { return content; }
-            public void setContent(GeminiContent content) { this.content = content; }
+        public static class Choice {
+            private OpenRouterMessage message;
+            public Choice() {}
+            public OpenRouterMessage getMessage() { return message; }
+            public void setMessage(OpenRouterMessage message) { this.message = message; }
         }
     }
 }
