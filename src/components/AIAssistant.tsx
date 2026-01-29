@@ -12,6 +12,8 @@ import {
   ChevronRight,
   MessageSquare
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -151,16 +153,32 @@ export function AIAssistant({ stats, user }: { stats?: any, user?: any }) {
                 {message.role === "assistant" ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
               </div>
               
-              <div className={`flex flex-col gap-1.5 max-w-[80%] ${message.role === "user" ? "items-end" : ""}`}>
-                <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
-                  message.role === "assistant"
-                    ? "bg-zinc-800/50 border border-zinc-700/50 text-zinc-300"
-                    : "bg-white text-black font-medium"
-                }`}>
-                  {message.content}
+                <div className={`flex flex-col gap-1.5 max-w-[80%] ${message.role === "user" ? "items-end" : ""}`}>
+                  <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
+                    message.role === "assistant"
+                      ? "bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 shadow-sm"
+                      : "bg-white text-black font-medium shadow-sm"
+                  }`}>
+                    {message.role === "assistant" ? (
+                      <div className="prose prose-sm prose-invert max-w-none 
+                        prose-p:leading-relaxed prose-p:text-zinc-300 prose-p:mb-4 last:prose-p:mb-0
+                        prose-headings:text-white prose-headings:font-bold prose-headings:mb-3 prose-headings:mt-6 first:prose-headings:mt-0
+                        prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-xl
+                        prose-code:text-emerald-400 prose-code:bg-zinc-950 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none
+                        prose-strong:text-white prose-strong:font-bold
+                        prose-ul:my-4 prose-li:my-1 prose-ul:list-disc
+                        prose-ol:my-4 prose-li:my-1 prose-ol:list-decimal
+                        prose-blockquote:border-l-emerald-500 prose-blockquote:bg-emerald-500/5 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {message.content}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      message.content
+                    )}
+                  </div>
+                  <span className="text-[10px] text-zinc-600 px-1">{message.timestamp}</span>
                 </div>
-                <span className="text-[10px] text-zinc-600 px-1">{message.timestamp}</span>
-              </div>
             </motion.div>
           ))}
         </AnimatePresence>
