@@ -68,6 +68,7 @@ import {
 } from "@/components/ui/dialog";
 import { AIAssistant } from "@/components/AIAssistant";
 import { Leaderboard } from "@/components/Leaderboard";
+import { Insights } from "@/components/Insights";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -1016,6 +1017,19 @@ export default function DashboardPage() {
               className="max-w-4xl mx-auto"
             >
               <Leaderboard />
+            </motion.div>
+          )}
+
+          {activeView === "Insights" && (
+            <motion.div
+              key="insights"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+              className="max-w-7xl mx-auto"
+            >
+              <Insights stats={stats} activities={activities} user={user} />
             </motion.div>
           )}
 
