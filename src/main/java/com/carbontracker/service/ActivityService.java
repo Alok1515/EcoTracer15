@@ -222,33 +222,49 @@ public class ActivityService {
             timelineData.add(dataPoint);
         }
 
-        // Community Stats
+        // Community Stats & Rank Calculation (Matching Leaderboard Logic)
         List<User> allUsers = userRepository.findAll();
+        List<Activity> allGlobalActivities = activityRepository.findAll();
+        Map<String, List<Activity>> globalActivitiesByUserId = allGlobalActivities.stream()
+                .filter(a -> a.getUserId() != null)
+                .collect(Collectors.groupingBy(Activity::getUserId));
+
+        List<Double> allUserNetEmissions = new ArrayList<>();
         double totalMonthlyForAll = 0.0;
         int activeUsersThisMonth = 0;
-        List<Double> allUserMonthlyEmissions = new ArrayList<>();
 
         for (User u : allUsers) {
             if (u.getId() == null) continue;
             
-            Double uMonthly = activityRepository.findByUserIdAndDateBetween(u.getId(), startOfMonth, endOfMonth)
-                    .stream()
-                    .filter(a -> a != null && a.getEmission() != null)
+            List<Activity> uActivities = globalActivitiesByUserId.getOrDefault(u.getId(), new ArrayList<>());
+            
+            // For Community Average (Current Month)
+            Double uMonthly = uActivities.stream()
+                    .filter(a -> a.getDate() != null && a.getDate().isAfter(startOfMonth) && a.getDate().isBefore(endOfMonth))
+                    .filter(a -> a.getEmission() != null)
                     .mapToDouble(Activity::getEmission)
                     .sum();
             
-            allUserMonthlyEmissions.add(uMonthly);
             if (uMonthly > 0) {
                 totalMonthlyForAll += uMonthly;
                 activeUsersThisMonth++;
+            }
+
+            // For Rank (Net Emission logic matching leaderboard)
+            if (!uActivities.isEmpty()) {
+                Double uNet = uActivities.stream()
+                        .filter(a -> a.getEmission() != null)
+                        .mapToDouble(Activity::getEmission)
+                        .sum();
+                allUserNetEmissions.add(uNet);
             }
         }
         
         Double communityAverage = activeUsersThisMonth > 0 ? totalMonthlyForAll / activeUsersThisMonth : 19.8;
         
-        // Calculate Rank (lower emission = better rank)
-        Collections.sort(allUserMonthlyEmissions);
-        int userRank = allUserMonthlyEmissions.indexOf(monthlyEmissions) + 1;
+        // Calculate Rank based on Net Emission
+        Collections.sort(allUserNetEmissions);
+        int userRank = allUserNetEmissions.indexOf(totalEmissionsSum) + 1;
         if (userRank <= 0) userRank = 1;
 
         // Current Streak check
