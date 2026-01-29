@@ -5,7 +5,6 @@ import com.carbontracker.dto.LcaResponse;
 import com.carbontracker.model.LcaFactor;
 import com.carbontracker.model.LcaStage;
 import com.carbontracker.repository.LcaRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -16,10 +15,13 @@ import java.util.Map;
  * Emission factors are based on IPCC and UK DEFRA public datasets.
  */
 @Service
-@RequiredArgsConstructor
 public class LcaService {
 
     private final LcaRepository lcaRepository;
+
+    public LcaService(LcaRepository lcaRepository) {
+        this.lcaRepository = lcaRepository;
+    }
 
     public LcaResponse calculateEmissions(LcaRequest request) {
         Map<String, Double> breakdown = new HashMap<>();

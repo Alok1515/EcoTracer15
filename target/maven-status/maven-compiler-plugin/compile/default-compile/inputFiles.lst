@@ -1,3 +1,4 @@
+/Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/repository/LcaRepository.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/dto/ChatRequest.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/controller/ChatController.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/repository/UserRepository.java
@@ -5,15 +6,19 @@
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/exception/GlobalExceptionHandler.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/service/AuthService.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/dto/RegisterRequest.java
+/Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/dto/LcaRequest.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/security/UserDetailsServiceImpl.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/controller/EmissionController.java
+/Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/model/LcaFactor.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/repository/EmissionFactorRepository.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/dto/ActivityResponseDTO.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/dto/LeaderboardDTO.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/controller/ActivityController.java
+/Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/service/LcaService.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/repository/ActivityRepository.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/security/JwtUtils.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/model/UserType.java
+/Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/dto/LcaResponse.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/config/DataInitializer.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/security/JwtAuthenticationFilter.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/service/UserService.java
@@ -22,6 +27,7 @@
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/service/EmissionFactorService.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/dto/DashboardStatsDTO.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/controller/AuthController.java
+/Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/model/LcaStage.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/model/EmissionFactor.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/dto/ChatResponse.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/CarbonTrackerApplication.java
@@ -29,6 +35,7 @@
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/service/ActivityService.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/dto/ActivityDTO.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/model/User.java
+/Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/controller/LcaController.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/service/ChatService.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/dto/LoginRequest.java
 /Users/alokkumar/orchids-projects/orchids-carbon-footprint-tracker/src/main/java/com/carbontracker/model/Activity.java

@@ -1,3 +1,4 @@
+com/carbontracker/dto/LcaRequest.class
 com/carbontracker/service/ChatService$OpenRouterResponse.class
 com/carbontracker/dto/ActivityResponseDTO.class
 com/carbontracker/service/EmissionFactorService$1.class
@@ -7,12 +8,15 @@ com/carbontracker/dto/LeaderboardDTO$LeaderboardDTOBuilder.class
 com/carbontracker/service/EmissionFactorService.class
 com/carbontracker/model/UserType.class
 com/carbontracker/service/AuthService.class
+com/carbontracker/controller/LcaController.class
 com/carbontracker/controller/EmissionController.class
 com/carbontracker/model/Activity$ActivityBuilder.class
 com/carbontracker/CarbonTrackerApplication$1.class
 com/carbontracker/dto/ChatRequest.class
 com/carbontracker/security/JwtAuthenticationFilter.class
+com/carbontracker/model/LcaFactor.class
 com/carbontracker/dto/DashboardStatsDTO.class
+com/carbontracker/model/LcaStage.class
 com/carbontracker/model/EmissionFactor.class
 com/carbontracker/security/UserDetailsServiceImpl.class
 com/carbontracker/dto/LoginRequest.class
@@ -22,6 +26,7 @@ com/carbontracker/dto/ChatResponse.class
 com/carbontracker/model/User$UserBuilder.class
 com/carbontracker/model/EmissionFactor$EmissionFactorBuilder.class
 com/carbontracker/CarbonTrackerApplication.class
+com/carbontracker/service/LcaService.class
 com/carbontracker/dto/ChatRequest$ChatMessage.class
 com/carbontracker/security/JwtUtils.class
 com/carbontracker/controller/UserController.class
@@ -29,6 +34,8 @@ com/carbontracker/dto/LeaderboardDTO.class
 com/carbontracker/model/Activity$ActivityType.class
 com/carbontracker/service/UserService.class
 com/carbontracker/config/DataInitializer.class
+com/carbontracker/repository/LcaRepository.class
+com/carbontracker/dto/LcaResponse.class
 com/carbontracker/dto/RegisterRequest.class
 com/carbontracker/controller/ActivityController.class
 com/carbontracker/dto/ActivityDTO.class
@@ -41,7 +48,9 @@ com/carbontracker/exception/GlobalExceptionHandler.class
 com/carbontracker/controller/ChatController.class
 com/carbontracker/service/ChatService$OpenRouterMessage.class
 com/carbontracker/repository/ActivityRepository.class
+com/carbontracker/model/LcaFactor$LcaFactorBuilder.class
 com/carbontracker/model/Activity.class
+com/carbontracker/dto/LcaResponse$LcaResponseBuilder.class
 com/carbontracker/config/SecurityConfig.class
 com/carbontracker/service/ChatService$OpenRouterRequest.class
 com/carbontracker/dto/AuthResponse.class
