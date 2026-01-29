@@ -279,8 +279,10 @@ public class ActivityService {
     }
 
     public List<LeaderboardDTO> getLeaderboard() {
+        System.out.println("Generating leaderboard...");
         List<User> allUsers = userRepository.findAll();
         List<Activity> allActivities = activityRepository.findAll();
+        System.out.println("Found " + allUsers.size() + " users and " + allActivities.size() + " activities");
 
         Map<String, List<Activity>> activitiesByUser = allActivities.stream()
                 .filter(a -> a.getUserId() != null)
@@ -289,29 +291,34 @@ public class ActivityService {
         List<LeaderboardDTO> leaderboard = new ArrayList<>();
 
         for (User user : allUsers) {
-            List<Activity> userActivities = activitiesByUser.getOrDefault(user.getId(), new ArrayList<>());
-            
-            // Exclude users with no activities
-            if (userActivities.isEmpty()) {
-                continue;
+            try {
+                List<Activity> userActivities = activitiesByUser.getOrDefault(user.getId(), new ArrayList<>());
+                
+                // Exclude users with no activities
+                if (userActivities.isEmpty()) {
+                    continue;
+                }
+
+                Double netEmission = userActivities.stream()
+                        .filter(a -> a.getEmission() != null)
+                        .mapToDouble(Activity::getEmission)
+                        .sum();
+                
+                int treesPlanted = userActivities.stream()
+                        .filter(a -> a.getType() == Activity.ActivityType.TREE_PLANTING)
+                        .mapToInt(a -> a.getValue() != null ? a.getValue().intValue() : 0)
+                        .sum();
+
+                leaderboard.add(LeaderboardDTO.builder()
+                        .name(user.getName() != null && !user.getName().isEmpty() ? user.getName() : user.getEmail())
+                        .netEmission(netEmission)
+                        .streakCount(user.getStreakCount())
+                        .treesPlanted(treesPlanted)
+                        .build());
+            } catch (Exception e) {
+                System.err.println("Error processing user " + user.getEmail() + ": " + e.getMessage());
+                e.printStackTrace();
             }
-
-            Double netEmission = userActivities.stream()
-                    .filter(a -> a.getEmission() != null)
-                    .mapToDouble(Activity::getEmission)
-                    .sum();
-            
-            int treesPlanted = userActivities.stream()
-                    .filter(a -> a.getType() == Activity.ActivityType.TREE_PLANTING)
-                    .mapToInt(a -> a.getValue() != null ? a.getValue().intValue() : 0)
-                    .sum();
-
-            leaderboard.add(LeaderboardDTO.builder()
-                    .name(user.getName() != null && !user.getName().isEmpty() ? user.getName() : user.getEmail())
-                    .netEmission(netEmission)
-                    .streakCount(user.getStreakCount())
-                    .treesPlanted(treesPlanted)
-                    .build());
         }
 
         // Sort by net emission ascending (lowest on top)
@@ -321,7 +328,7 @@ public class ActivityService {
         for (int i = 0; i < leaderboard.size(); i++) {
             leaderboard.get(i).setRank(i + 1);
         }
-
+        System.out.println("Leaderboard generated with " + leaderboard.size() + " entries");
         return leaderboard;
     }
 }

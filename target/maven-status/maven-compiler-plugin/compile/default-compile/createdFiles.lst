@@ -3,6 +3,7 @@ com/carbontracker/dto/ActivityResponseDTO.class
 com/carbontracker/service/EmissionFactorService$1.class
 com/carbontracker/dto/RegisterRequest.class
 com/carbontracker/model/User.class
+com/carbontracker/dto/LeaderboardDTO$LeaderboardDTOBuilder.class
 com/carbontracker/service/EmissionFactorService.class
 com/carbontracker/controller/ActivityController.class
 com/carbontracker/model/UserType.class
@@ -35,6 +36,7 @@ com/carbontracker/repository/ActivityRepository.class
 com/carbontracker/dto/ChatRequest$ChatMessage.class
 com/carbontracker/model/Activity.class
 com/carbontracker/security/JwtUtils.class
+com/carbontracker/dto/LeaderboardDTO.class
 com/carbontracker/config/SecurityConfig.class
 com/carbontracker/model/Activity$ActivityType.class
 com/carbontracker/service/ChatService$OpenRouterRequest.class
