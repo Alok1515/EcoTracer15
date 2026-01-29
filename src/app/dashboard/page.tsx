@@ -298,7 +298,6 @@ export default function DashboardPage() {
 
   const processAddEmission = async (isProduct = false) => {
     setIsLogging(true);
-    setShowConfirm(false);
 
     const token = localStorage.getItem("token");
     if (!token) return;
