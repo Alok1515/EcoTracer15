@@ -42,7 +42,15 @@ import {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [stats, setStats] = useState({ today: 0, average: 19.8, top: 1.3 });
+  const [stats, setStats] = useState({ 
+    today: 0, 
+    total: 0, 
+    monthlyChange: 0, 
+    rank: 11, 
+    treesNeeded: 0, 
+    average: 19.8, 
+    top: 1.3 
+  });
   const [user, setUser] = useState<any>(null);
   const [activeCategory, setActiveCategory] = useState("Transportation");
   const [isLoading, setIsLoading] = useState(true);
@@ -94,9 +102,17 @@ export default function DashboardPage() {
 
     try {
       const headers = { "Authorization": `Bearer ${token}` };
-      const todayRes = await fetch("http://localhost:8080/api/emission/today", { headers });
-      const todayData = await todayRes.json();
-      setStats(prev => ({ ...prev, today: todayData }));
+      const res = await fetch("http://localhost:8080/api/emission/stats", { headers });
+      const data = await res.json();
+      setStats({
+        today: data.todayEmissions || 0,
+        total: data.totalEmissions || 0,
+        monthlyChange: data.monthlyChange || 0,
+        rank: data.userRank || 11,
+        treesNeeded: data.treesNeeded || 0,
+        average: data.communityAverage || 19.8,
+        top: 1.3
+      });
     } catch (err) {
       console.error("Failed to fetch dashboard data", err);
     } finally {
@@ -309,7 +325,7 @@ export default function DashboardPage() {
                 <span className="text-zinc-400 text-lg">+</span>
               </div>
             </div>
-            <div className="text-3xl font-bold text-white mb-1">22.3 kg</div>
+            <div className="text-3xl font-bold text-white mb-1">{stats.total.toFixed(1)} kg</div>
             <div className="text-xs text-zinc-500">Total logged CO2</div>
           </CardContent>
         </Card>
@@ -319,12 +335,17 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm text-zinc-400">Monthly Change</span>
               <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
-                <svg className="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M7 17l5-5 5 5M7 7l5 5 5-5"/>
+                <svg className={`w-4 h-4 ${stats.monthlyChange > 0 ? 'text-red-500' : 'text-emerald-500'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  {stats.monthlyChange > 0 
+                    ? <path d="M7 17l5-5 5 5M7 7l5 5 5-5"/>
+                    : <path d="M7 7l5 5 5-5M7 17l5-5 5 5"/>
+                  }
                 </svg>
               </div>
             </div>
-            <div className="text-3xl font-bold text-red-500 mb-1">+133900.0%</div>
+            <div className={`text-3xl font-bold ${stats.monthlyChange > 0 ? 'text-red-500' : 'text-emerald-500'} mb-1`}>
+              {stats.monthlyChange > 0 ? '+' : ''}{stats.monthlyChange.toFixed(1)}%
+            </div>
             <div className="text-xs text-zinc-500">vs last month</div>
           </CardContent>
         </Card>
@@ -337,7 +358,7 @@ export default function DashboardPage() {
                 <Settings className="w-4 h-4 text-zinc-400" />
               </div>
             </div>
-            <div className="text-3xl font-bold text-white mb-1">#11</div>
+            <div className="text-3xl font-bold text-white mb-1">#{stats.rank}</div>
             <div className="text-xs text-zinc-500">on leaderboard</div>
           </CardContent>
         </Card>
@@ -348,12 +369,12 @@ export default function DashboardPage() {
               <span className="text-sm text-zinc-400">Trees Needed</span>
               <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
                 <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M7 17.5c0 2.5 2 4.5 5 4.5s5-2 5-4.5c0-3-2.5-5-5-8-2.5 3-5 5-5 8z"/>
+                  <path d="M12 2L12 22M12 22L7 17M12 22L17 17M12 2L7 7M12 2L17 7"/>
                 </svg>
               </div>
             </div>
-            <div className="text-3xl font-bold text-white mb-1">0</div>
-            <div className="text-xs text-zinc-500">100% offset (1 planted)</div>
+            <div className="text-3xl font-bold text-white mb-1">{stats.treesNeeded}</div>
+            <div className="text-xs text-zinc-500">to offset total impact</div>
           </CardContent>
         </Card>
       </div>

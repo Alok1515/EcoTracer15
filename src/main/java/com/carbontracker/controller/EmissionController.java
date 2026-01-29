@@ -1,5 +1,6 @@
 package com.carbontracker.controller;
 
+import com.carbontracker.dto.DashboardStatsDTO;
 import com.carbontracker.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,5 +23,10 @@ public class EmissionController {
     @GetMapping("/monthly")
     public ResponseEntity<Double> getMonthlyEmissions() {
         return ResponseEntity.ok(activityService.getMonthlyEmissions());
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<DashboardStatsDTO> getDashboardStats() {
+        return ResponseEntity.ok(activityService.getDashboardStats());
     }
 }
