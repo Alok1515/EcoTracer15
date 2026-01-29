@@ -86,8 +86,9 @@ export default function DashboardPage() {
     treesPlanted: 0,
     totalPositiveEmissions: 0,
     netBalance: 0,
-    average: 19.8, 
-    top: 1.3,
+    monthlyEmissions: 0,
+    average: 0, 
+    top: 0,
     streakCount: 0,
     categoryEmissions: {} as Record<string, number>,
     timelineData: [] as any[]
@@ -173,8 +174,9 @@ export default function DashboardPage() {
         treesPlanted: data.treesPlanted ?? 0,
         totalPositiveEmissions: data.totalPositiveEmissions ?? 0,
         netBalance: data.netBalance ?? 0,
-        average: data.communityAverage ?? 19.8,
-        top: data.topPerformerEmissions ?? 1.3,
+        monthlyEmissions: data.monthlyEmissions ?? 0,
+        average: data.communityAverage ?? 0,
+        top: data.topPerformerEmissions ?? 0,
         streakCount: data.streakCount ?? 0,
         categoryEmissions: data.categoryEmissions ?? {},
         timelineData: data.timelineData ?? []
@@ -833,7 +835,7 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="space-y-10">
-                    {/* Your Emissions */}
+                    {/* Your Monthly Emissions */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -841,20 +843,22 @@ export default function DashboardPage() {
                             <User className="w-5 h-5" />
                           </div>
                           <div>
-                            <div className="text-sm font-medium text-foreground">Your Emissions</div>
-                            <div className="text-xs text-muted-foreground">{stats.today.toFixed(1)} kg CO2</div>
+                            <div className="text-sm font-medium text-foreground">Your Monthly Emissions</div>
+                            <div className="text-xs text-muted-foreground">{(stats.monthlyEmissions || 0).toFixed(1)} kg CO2</div>
                           </div>
                         </div>
-                        <div className={`text-sm font-semibold ${stats.today <= stats.average ? 'text-emerald-500' : 'text-red-500'}`}>
-                          {stats.today <= stats.average 
-                            ? `${Math.round((1 - stats.today / (stats.average || 1)) * 100)}% below average` 
-                            : `${Math.round((stats.today / (stats.average || 1) - 1) * 100)}% above average`}
+                        <div className={`text-sm font-semibold ${(stats.monthlyEmissions || 0) <= (stats.average || 0) ? 'text-emerald-500' : 'text-red-500'}`}>
+                          {(stats.average || 0) > 0 ? (
+                            (stats.monthlyEmissions || 0) <= (stats.average || 0) 
+                              ? `${Math.round((1 - (stats.monthlyEmissions || 0) / (stats.average || 1)) * 100)}% below average` 
+                              : `${Math.round(((stats.monthlyEmissions || 0) / (stats.average || 1) - 1) * 100)}% above average`
+                          ) : "First in community"}
                         </div>
                       </div>
                       <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                         <motion.div 
                           initial={{ width: 0 }}
-                          animate={{ width: `${Math.min((stats.today / Math.max(stats.today, stats.average, stats.top, 0.1)) * 100, 100)}%` }}
+                          animate={{ width: `${Math.min(((stats.monthlyEmissions || 0) / Math.max((stats.monthlyEmissions || 0), (stats.average || 0), (stats.top || 0), 0.1)) * 100, 100)}%` }}
                           className="absolute h-full bg-primary rounded-full shadow-[0_0_10px_rgba(var(--primary),0.3)]"
                         />
                       </div>
@@ -868,13 +872,13 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <div className="text-sm font-medium text-foreground">Community Average</div>
-                          <div className="text-xs text-muted-foreground">{stats.average.toFixed(1)} kg CO2</div>
+                          <div className="text-xs text-muted-foreground">{(stats.average || 0).toFixed(1)} kg CO2</div>
                         </div>
                       </div>
                       <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                         <motion.div 
                           initial={{ width: 0 }}
-                          animate={{ width: `${Math.min((stats.average / Math.max(stats.today, stats.average, stats.top, 0.1)) * 100, 100)}%` }}
+                          animate={{ width: `${Math.min(((stats.average || 0) / Math.max((stats.monthlyEmissions || 0), (stats.average || 0), (stats.top || 0), 0.1)) * 100, 100)}%` }}
                           className="absolute h-full bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"
                         />
                       </div>
@@ -888,13 +892,13 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <div className="text-sm font-medium text-foreground">Top Performer</div>
-                          <div className="text-xs text-muted-foreground">{stats.top.toFixed(1)} kg CO2</div>
+                          <div className="text-xs text-muted-foreground">{(stats.top || 0).toFixed(1)} kg CO2</div>
                         </div>
                       </div>
                       <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                         <motion.div 
                           initial={{ width: 0 }}
-                          animate={{ width: `${Math.min((stats.top / Math.max(stats.today, stats.average, stats.top, 0.1)) * 100, 100)}%` }}
+                          animate={{ width: `${Math.min(((stats.top || 0) / Math.max((stats.monthlyEmissions || 0), (stats.average || 0), (stats.top || 0), 0.1)) * 100, 100)}%` }}
                           className="absolute h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"
                         />
                       </div>
@@ -904,9 +908,9 @@ export default function DashboardPage() {
                     <div className="bg-muted/50 border border-border p-5 rounded-2xl flex gap-4 mt-8">
                       <Sparkles className="w-6 h-6 text-amber-500 flex-shrink-0" />
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        {stats.today <= stats.average 
+                        {stats.monthlyEmissions <= stats.average 
                           ? "Great job! You're doing better than average! Keep up the good work and inspire others."
-                          : "You're slightly above average today. Try reducing travel or electricity usage to lower your impact!"}
+                          : "You're slightly above average this month. Try reducing travel or electricity usage to lower your impact!"}
                       </p>
                     </div>
                   </div>

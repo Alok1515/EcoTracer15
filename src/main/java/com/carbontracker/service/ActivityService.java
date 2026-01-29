@@ -230,6 +230,7 @@ public class ActivityService {
                 .collect(Collectors.groupingBy(Activity::getUserId));
 
         List<Double> allUserNetEmissions = new ArrayList<>();
+        List<Double> allUserMonthlyEmissions = new ArrayList<>();
         double totalMonthlyForAll = 0.0;
         int activeUsersThisMonth = 0;
 
@@ -245,9 +246,13 @@ public class ActivityService {
                     .mapToDouble(Activity::getEmission)
                     .sum();
             
-            if (uMonthly > 0) {
+            boolean hasActivityThisMonth = uActivities.stream()
+                    .anyMatch(a -> a.getDate() != null && a.getDate().isAfter(startOfMonth) && a.getDate().isBefore(endOfMonth));
+
+            if (hasActivityThisMonth) {
                 totalMonthlyForAll += uMonthly;
                 activeUsersThisMonth++;
+                allUserMonthlyEmissions.add(uMonthly);
             }
 
             // For Rank (Net Emission logic matching leaderboard)
@@ -260,13 +265,12 @@ public class ActivityService {
             }
         }
         
-        Double communityAverage = activeUsersThisMonth > 0 ? totalMonthlyForAll / activeUsersThisMonth : 19.8;
+        Double communityAverage = activeUsersThisMonth > 0 ? totalMonthlyForAll / activeUsersThisMonth : monthlyEmissions;
         
         // Top Performer Emissions (Lowest monthly emission among active users)
-        Double topPerformerEmissions = allUserNetEmissions.stream()
-                .filter(e -> e > 0)
+        Double topPerformerEmissions = allUserMonthlyEmissions.stream()
                 .min(Double::compare)
-                .orElse(1.3);
+                .orElse(monthlyEmissions);
 
         // Calculate Rank based on Net Emission
         Collections.sort(allUserNetEmissions);
@@ -296,6 +300,7 @@ public class ActivityService {
                 netBalance,
                 currentStreak,
                 topPerformerEmissions,
+                monthlyEmissions,
                 categoryEmissions,
                 timelineData
         );
