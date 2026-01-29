@@ -835,7 +835,7 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="space-y-10">
-                    {/* Your Monthly Emissions */}
+                    {/* Your Net Emissions */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -843,22 +843,22 @@ export default function DashboardPage() {
                             <User className="w-5 h-5" />
                           </div>
                           <div>
-                            <div className="text-sm font-medium text-foreground">Your Monthly Emissions</div>
-                            <div className="text-xs text-muted-foreground">{(stats.monthlyEmissions || 0).toFixed(1)} kg CO2</div>
+                            <div className="text-sm font-medium text-foreground">Your Net Emissions</div>
+                            <div className="text-xs text-muted-foreground">{(stats.netBalance || 0).toFixed(1)} kg CO2</div>
                           </div>
                         </div>
-                        <div className={`text-sm font-semibold ${(stats.monthlyEmissions || 0) <= (stats.average || 0) ? 'text-emerald-500' : 'text-red-500'}`}>
+                        <div className={`text-sm font-semibold ${(stats.netBalance || 0) <= (stats.average || 0) ? 'text-emerald-500' : 'text-red-500'}`}>
                           {(stats.average || 0) > 0 ? (
-                            (stats.monthlyEmissions || 0) <= (stats.average || 0) 
-                              ? `${Math.round((1 - (stats.monthlyEmissions || 0) / (stats.average || 1)) * 100)}% below average` 
-                              : `${Math.round(((stats.monthlyEmissions || 0) / (stats.average || 1) - 1) * 100)}% above average`
+                            (stats.netBalance || 0) <= (stats.average || 0) 
+                              ? `${Math.round((1 - (stats.netBalance || 0) / (stats.average || 1)) * 100)}% below average` 
+                              : `${Math.round(((stats.netBalance || 0) / (stats.average || 1) - 1) * 100)}% above average`
                           ) : "First in community"}
                         </div>
                       </div>
                       <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                         <motion.div 
                           initial={{ width: 0 }}
-                          animate={{ width: `${Math.min(((stats.monthlyEmissions || 0) / Math.max((stats.monthlyEmissions || 0), (stats.average || 0), (stats.top || 0), 0.1)) * 100, 100)}%` }}
+                          animate={{ width: `${Math.min(((stats.netBalance || 0) / Math.max((stats.netBalance || 0), (stats.average || 0), (stats.top || 0), 0.1)) * 100, 100)}%` }}
                           className="absolute h-full bg-primary rounded-full shadow-[0_0_10px_rgba(var(--primary),0.3)]"
                         />
                       </div>
@@ -871,14 +871,14 @@ export default function DashboardPage() {
                           <Users className="w-5 h-5 text-muted-foreground" />
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-foreground">Community Average</div>
+                          <div className="text-sm font-medium text-foreground">Community Average (Net)</div>
                           <div className="text-xs text-muted-foreground">{(stats.average || 0).toFixed(1)} kg CO2</div>
                         </div>
                       </div>
                       <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                         <motion.div 
                           initial={{ width: 0 }}
-                          animate={{ width: `${Math.min(((stats.average || 0) / Math.max((stats.monthlyEmissions || 0), (stats.average || 0), (stats.top || 0), 0.1)) * 100, 100)}%` }}
+                          animate={{ width: `${Math.min(((stats.average || 0) / Math.max((stats.netBalance || 0), (stats.average || 0), (stats.top || 0), 0.1)) * 100, 100)}%` }}
                           className="absolute h-full bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"
                         />
                       </div>
@@ -891,14 +891,14 @@ export default function DashboardPage() {
                           <Trophy className="w-5 h-5 text-amber-500" />
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-foreground">Top Performer</div>
+                          <div className="text-sm font-medium text-foreground">Top Performer (Net)</div>
                           <div className="text-xs text-muted-foreground">{(stats.top || 0).toFixed(1)} kg CO2</div>
                         </div>
                       </div>
                       <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                         <motion.div 
                           initial={{ width: 0 }}
-                          animate={{ width: `${Math.min(((stats.top || 0) / Math.max((stats.monthlyEmissions || 0), (stats.average || 0), (stats.top || 0), 0.1)) * 100, 100)}%` }}
+                          animate={{ width: `${Math.min(((stats.top || 0) / Math.max((stats.netBalance || 0), (stats.average || 0), (stats.top || 0), 0.1)) * 100, 100)}%` }}
                           className="absolute h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"
                         />
                       </div>
@@ -908,9 +908,9 @@ export default function DashboardPage() {
                     <div className="bg-muted/50 border border-border p-5 rounded-2xl flex gap-4 mt-8">
                       <Sparkles className="w-6 h-6 text-amber-500 flex-shrink-0" />
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        {stats.monthlyEmissions <= stats.average 
-                          ? "Great job! You're doing better than average! Keep up the good work and inspire others."
-                          : "You're slightly above average this month. Try reducing travel or electricity usage to lower your impact!"}
+                        {stats.netBalance <= stats.average 
+                          ? "Great job! Your net emissions are below the community average. Your tree planting and reduction efforts are paying off!"
+                          : "You're currently above the community average in net emissions. Try planting more trees or reducing high-impact activities to improve your balance!"}
                       </p>
                     </div>
                   </div>

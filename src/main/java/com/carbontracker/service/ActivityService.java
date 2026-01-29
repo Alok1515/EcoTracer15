@@ -230,51 +230,40 @@ public class ActivityService {
                 .collect(Collectors.groupingBy(Activity::getUserId));
 
         List<Double> allUserNetEmissions = new ArrayList<>();
-        List<Double> allUserMonthlyEmissions = new ArrayList<>();
-        double totalMonthlyForAll = 0.0;
-        int activeUsersThisMonth = 0;
+        double totalNetForAll = 0.0;
+        int totalActiveUsers = 0;
 
         for (User u : allUsers) {
             if (u.getId() == null) continue;
             
             List<Activity> uActivities = globalActivitiesByUserId.getOrDefault(u.getId(), new ArrayList<>());
             
-            // For Community Average (Current Month)
-            Double uMonthly = uActivities.stream()
-                    .filter(a -> a.getDate() != null && a.getDate().isAfter(startOfMonth) && a.getDate().isBefore(endOfMonth))
-                    .filter(a -> a.getEmission() != null)
-                    .mapToDouble(Activity::getEmission)
-                    .sum();
-            
-            boolean hasActivityThisMonth = uActivities.stream()
-                    .anyMatch(a -> a.getDate() != null && a.getDate().isAfter(startOfMonth) && a.getDate().isBefore(endOfMonth));
-
-            if (hasActivityThisMonth) {
-                totalMonthlyForAll += uMonthly;
-                activeUsersThisMonth++;
-                allUserMonthlyEmissions.add(uMonthly);
-            }
-
-            // For Rank (Net Emission logic matching leaderboard)
+            // For Rank & Comparison (Net Emission logic)
             if (!uActivities.isEmpty()) {
                 Double uNet = uActivities.stream()
                         .filter(a -> a.getEmission() != null)
                         .mapToDouble(Activity::getEmission)
                         .sum();
+                // Cap net at 0 for comparison consistency
+                uNet = Math.max(0.0, uNet);
+                
                 allUserNetEmissions.add(uNet);
+                totalNetForAll += uNet;
+                totalActiveUsers++;
             }
         }
         
-        Double communityAverage = activeUsersThisMonth > 0 ? totalMonthlyForAll / activeUsersThisMonth : monthlyEmissions;
+        // Community Average based on Net Emissions
+        Double communityAverage = totalActiveUsers > 0 ? totalNetForAll / totalActiveUsers : netBalance;
         
-        // Top Performer Emissions (Lowest monthly emission among active users)
-        Double topPerformerEmissions = allUserMonthlyEmissions.stream()
+        // Top Performer Emissions (Lowest net emission among active users)
+        Double topPerformerEmissions = allUserNetEmissions.stream()
                 .min(Double::compare)
-                .orElse(monthlyEmissions);
+                .orElse(netBalance);
 
         // Calculate Rank based on Net Emission
         Collections.sort(allUserNetEmissions);
-        int userRank = allUserNetEmissions.indexOf(totalEmissionsSum) + 1;
+        int userRank = allUserNetEmissions.indexOf(netBalance) + 1;
         if (userRank <= 0) userRank = 1;
 
         // Current Streak check
