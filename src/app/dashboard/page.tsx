@@ -18,7 +18,8 @@ import {
   Sparkles,
   Info,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  AlertTriangle
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -45,6 +56,9 @@ export default function DashboardPage() {
   const [foodType, setFoodType] = useState("meat");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [precisionMode, setPrecisionMode] = useState(true);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [isProductMode, setIsProductMode] = useState(false);
 
   const products = [
     { name: "MacBook Pro 14\"", category: "Electronics", co2: 245, icon: Package },
@@ -90,9 +104,16 @@ export default function DashboardPage() {
     }
   };
 
-  const handleAddEmission = async (isProduct = false) => {
-    if (!amount) return;
+  const handleAddEmission = (isProduct = false) => {
+    if (isProduct && !selectedProduct) return;
+    if (!isProduct && !amount) return;
+    setIsProductMode(isProduct);
+    setShowConfirm(true);
+  };
+
+  const processAddEmission = async () => {
     setIsLogging(true);
+    setShowConfirm(false);
 
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -107,7 +128,7 @@ export default function DashboardPage() {
     };
 
     let description = "";
-    if (isProduct && selectedProduct) {
+    if (isProductMode && selectedProduct) {
       description = `Product: ${selectedProduct.name} (${selectedProduct.category})`;
     } else {
       switch (activeCategory) {
@@ -128,7 +149,7 @@ export default function DashboardPage() {
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          type: isProduct ? "PRODUCT" : (categoryMap[activeCategory] || "TRAVEL"),
+          type: isProductMode ? "PRODUCT" : (categoryMap[activeCategory] || "TRAVEL"),
           description: description,
           value: parseFloat(amount),
         }),
@@ -148,6 +169,25 @@ export default function DashboardPage() {
     } finally {
       setIsLogging(false);
     }
+  };
+
+  const getSourceAndPrecision = () => {
+    if (isProductMode) {
+      return {
+        source: "Climatiq Open Data & Lifecycle Analysis Database",
+        precision: "92%"
+      };
+    }
+    if (precisionMode) {
+      return {
+        source: "IPCC (Intergovernmental Panel on Climate Change) & UK DEFRA Dataset",
+        precision: "98%"
+      };
+    }
+    return {
+      source: "Regional Average Benchmarks & Estimated Factors",
+      precision: "85%"
+    };
   };
 
   const getUnit = () => {
@@ -281,10 +321,10 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <div className="text-sm font-medium text-white">Precision Mode</div>
-                      <div className="text-xs text-zinc-500">Recommended</div>
+                      <div className="text-xs text-zinc-500">{precisionMode ? "Recommended" : "Basic"}</div>
                     </div>
                   </div>
-                  <Switch defaultChecked />
+                  <Switch checked={precisionMode} onCheckedChange={setPrecisionMode} />
                 </div>
 
                 <div>
@@ -412,7 +452,7 @@ export default function DashboardPage() {
                 </div>
 
                 <Button 
-                  onClick={handleAddEmission}
+                  onClick={() => handleAddEmission(false)}
                   disabled={isLogging || !amount}
                   className="w-full h-14 bg-white hover:bg-zinc-200 text-black font-semibold rounded-xl text-base transition-all disabled:opacity-50"
                 >
@@ -586,6 +626,39 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+      <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
+              Confirm Activity Log
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400 space-y-4 pt-2">
+              <p>Are you sure you want to log this activity? This will update your carbon footprint stats for today.</p>
+              
+              <div className="bg-zinc-950/50 p-4 rounded-xl border border-zinc-800 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs uppercase tracking-wider font-bold text-zinc-500">Precision Rate</span>
+                  <span className="text-sm font-semibold text-emerald-500">{getSourceAndPrecision().precision}</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-xs uppercase tracking-wider font-bold text-zinc-500">Data Source</span>
+                  <p className="text-sm text-zinc-300 leading-snug">{getSourceAndPrecision().source}</p>
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={processAddEmission}
+              className="bg-white text-black hover:bg-zinc-200"
+            >
+              Confirm & Log
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

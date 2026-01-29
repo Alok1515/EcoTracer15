@@ -23,7 +23,7 @@ public class DataInitializer {
                     new EmissionFactor(null, Activity.ActivityType.FOOD, 2.5),
                     new EmissionFactor(null, Activity.ActivityType.HEATING, 0.18),
                     new EmissionFactor(null, Activity.ActivityType.FLIGHTS, 0.15),
-                    new EmissionFactor(null, Activity.ActivityType.PRODUCT, 50.0)
+                    new EmissionFactor(null, Activity.ActivityType.PRODUCT, 1.0)
                 ));
             }
         };
