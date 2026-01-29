@@ -135,17 +135,23 @@ public class ActivityService {
                 .mapToDouble(Activity::getEmission)
                 .sum();
 
-        // Trees Needed: Approx 22kg CO2 per tree per year.
-        int calculatedTreesNeeded = (int) Math.ceil(totalEmissions / 22.0);
-        
-        // Subtract trees already planted
+        // Total Positive Emissions (to calculate how many trees are needed total)
+        Double totalPositiveEmissions = activityRepository.findByUserId(user.getId())
+                .stream()
+                .filter(a -> a != null && a.getEmission() != null && a.getEmission() > 0)
+                .mapToDouble(Activity::getEmission)
+                .sum();
+
+        // Trees Already Planted
         int treesPlanted = activityRepository.findByUserId(user.getId())
                 .stream()
                 .filter(a -> a != null && a.getType() == Activity.ActivityType.TREE_PLANTING)
                 .mapToInt(a -> a.getValue().intValue())
                 .sum();
-        
-        int treesNeeded = Math.max(0, calculatedTreesNeeded - treesPlanted);
+
+        // Trees Needed: Based on user's screenshot 21kg per tree.
+        int calculatedTotalTreesNeeded = (int) Math.ceil(totalPositiveEmissions / 21.0);
+        int treesNeeded = Math.max(0, calculatedTotalTreesNeeded - treesPlanted);
 
         // Community Stats
         List<User> allUsers = userRepository.findAll();
@@ -183,6 +189,8 @@ public class ActivityService {
                 monthlyChange,
                 userRank,
                 treesNeeded,
+                treesPlanted,
+                totalPositiveEmissions,
                 communityAverage
         );
     }

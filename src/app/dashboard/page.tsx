@@ -20,7 +20,10 @@ import {
   Loader2,
   CheckCircle2,
   AlertTriangle,
-  Leaf
+  Leaf,
+  X,
+  Calendar,
+  Plus
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,9 +61,12 @@ export default function DashboardPage() {
     monthlyChange: 0, 
     rank: 11, 
     treesNeeded: 0, 
+    treesPlanted: 0,
+    totalPositiveEmissions: 0,
     average: 19.8, 
     top: 1.3 
   });
+  const [activities, setActivities] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [activeCategory, setActiveCategory] = useState("Transportation");
   const [isLoading, setIsLoading] = useState(true);
@@ -138,9 +144,18 @@ export default function DashboardPage() {
         monthlyChange: data.monthlyChange ?? 0,
         rank: data.userRank ?? 1,
         treesNeeded: data.treesNeeded ?? 0,
+        treesPlanted: data.treesPlanted ?? 0,
+        totalPositiveEmissions: data.totalPositiveEmissions ?? 0,
         average: data.communityAverage ?? 19.8,
         top: 1.3
       });
+
+      // Fetch activities for history
+      const activitiesRes = await fetch("http://localhost:8080/api/activity/user", { headers });
+      if (activitiesRes.ok) {
+        const activitiesData = await activitiesRes.json();
+        setActivities(activitiesData.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+      }
     } catch (err) {
       console.error("Failed to fetch dashboard data:", err);
     } finally {
@@ -865,66 +880,147 @@ export default function DashboardPage() {
       </AlertDialog>
 
       <Dialog open={showTreeModal} onOpenChange={setShowTreeModal}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-emerald-500">
-              <Leaf className="w-5 h-5" />
-              Log Tree Planting
-            </DialogTitle>
-            <DialogDescription className="text-zinc-400">
-              Record your contribution to nature. This will offset your carbon footprint.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="treeCount" className="text-zinc-400">Number of Trees</Label>
-              <Input
-                id="treeCount"
-                type="number"
-                placeholder="How many trees did you plant?"
-                value={treeCount}
-                onChange={(e) => setTreeCount(e.target.value)}
-                className="bg-zinc-950 border-zinc-800 focus:ring-emerald-500"
-              />
+        <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-[500px] p-0 overflow-hidden">
+          <div className="p-6 space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="flex justify-between items-start">
+              <div>
+                <DialogTitle className="text-xl font-bold text-white mb-1">Tree Planting Tracker</DialogTitle>
+                <DialogDescription className="text-zinc-500 text-sm">
+                  Track your tree plantings to offset your carbon emissions. One tree absorbs approximately 21 kg of CO2 per year.
+                </DialogDescription>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setShowTreeModal(false)} className="text-zinc-500 hover:text-white -mt-2 -mr-2">
+                <X className="w-5 h-5" />
+              </Button>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="treeDate" className="text-zinc-400">Date</Label>
-              <Input
-                id="treeDate"
-                type="date"
-                value={treeDate}
-                onChange={(e) => setTreeDate(e.target.value)}
-                className="bg-zinc-950 border-zinc-800 focus:ring-emerald-500"
-              />
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-zinc-950/50 border border-zinc-800 rounded-2xl p-4 flex flex-col justify-between h-[140px]">
+                <span className="text-sm text-zinc-400">Trees Needed</span>
+                <div>
+                  <div className="text-2xl font-bold text-white">{Math.ceil((stats.totalPositiveEmissions || 0) / 21) || 0}</div>
+                  <div className="text-[10px] text-zinc-500 mt-1 leading-tight">to offset {(stats.totalPositiveEmissions || 0).toFixed(1)} kg CO2</div>
+                </div>
+              </div>
+              <div className="bg-zinc-950/50 border border-zinc-800 rounded-2xl p-4 flex flex-col justify-between h-[140px]">
+                <span className="text-sm text-zinc-400">Trees Planted</span>
+                <div>
+                  <div className="text-2xl font-bold text-emerald-500">{stats.treesPlanted}</div>
+                  <div className="text-[10px] text-zinc-500 mt-1 leading-tight">total planted</div>
+                </div>
+              </div>
+              <div className="bg-zinc-950/50 border border-zinc-800 rounded-2xl p-4 flex flex-col justify-between h-[140px]">
+                <span className="text-sm text-zinc-400">Remaining</span>
+                <div>
+                  <div className="text-2xl font-bold text-white">{stats.treesNeeded}</div>
+                  <div className="text-[10px] text-zinc-500 mt-1 leading-tight">
+                    {stats.totalPositiveEmissions > 0 
+                      ? `${Math.min(Math.round((stats.treesPlanted / Math.ceil(stats.totalPositiveEmissions / 21)) * 100), 100)}% complete`
+                      : "0% complete"}
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="treeNote" className="text-zinc-400">Note (Optional)</Label>
-              <Textarea
-                id="treeNote"
-                placeholder="Where did you plant them? Any special occasion?"
-                value={treeNote}
-                onChange={(e) => setTreeNote(e.target.value)}
-                className="bg-zinc-950 border-zinc-800 focus:ring-emerald-500 min-h-[100px]"
-              />
+
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-400 font-medium">Offset Progress</span>
+                <span className="text-white font-bold">
+                  {stats.totalPositiveEmissions > 0 
+                    ? `${Math.min(Math.round((stats.treesPlanted / Math.ceil(stats.totalPositiveEmissions / 21)) * 100), 100)}%`
+                    : "0%"}
+                </span>
+              </div>
+              <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${stats.totalPositiveEmissions > 0 ? Math.min((stats.treesPlanted / Math.ceil(stats.totalPositiveEmissions / 21)) * 100, 100) : 0}%` }}
+                  className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                />
+              </div>
+            </div>
+
+            <div className="bg-zinc-950/30 border border-zinc-800 rounded-2xl p-6 space-y-6">
+              <div className="flex items-center gap-3 text-white">
+                <Plus className="w-5 h-5 text-emerald-500" />
+                <h3 className="font-semibold">Log Tree Planting</h3>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Number of Trees *</Label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 10"
+                    value={treeCount}
+                    onChange={(e) => setTreeCount(e.target.value)}
+                    className="bg-zinc-950 border-zinc-800 h-12 rounded-xl focus:ring-emerald-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Planting Date *</Label>
+                  <div className="relative">
+                    <Input
+                      type="date"
+                      value={treeDate}
+                      onChange={(e) => setTreeDate(e.target.value)}
+                      className="bg-zinc-950 border-zinc-800 h-12 rounded-xl focus:ring-emerald-500 pl-4 pr-10"
+                    />
+                    <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs text-zinc-400 font-bold uppercase tracking-wider">Notes (optional)</Label>
+                <Textarea
+                  placeholder="e.g., Planted with local community group..."
+                  value={treeNote}
+                  onChange={(e) => setTreeNote(e.target.value)}
+                  className="bg-zinc-950 border-zinc-800 min-h-[80px] rounded-xl focus:ring-emerald-500"
+                />
+              </div>
+
+              <Button 
+                onClick={handleTreeLog}
+                disabled={!treeCount || isLoggingTrees}
+                className="w-full h-12 bg-white hover:bg-zinc-200 text-black font-bold rounded-xl transition-all"
+              >
+                {isLoggingTrees ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                Log Tree Planting
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                Planting History
+              </h3>
+              <div className="space-y-2">
+                {activities.filter(a => a.type === "TREE_PLANTING").length > 0 ? (
+                  activities.filter(a => a.type === "TREE_PLANTING").map((activity) => (
+                    <div key={activity.id} className="bg-zinc-950/30 border border-zinc-800 p-4 rounded-xl flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-emerald-500/10 rounded-lg">
+                          <Leaf className="w-4 h-4 text-emerald-500" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-white">{activity.value} Trees Planted</div>
+                          <div className="text-[10px] text-zinc-500">{new Date(activity.date).toLocaleDateString()}</div>
+                        </div>
+                      </div>
+                      <div className="text-xs text-zinc-400 italic max-w-[150px] truncate">
+                        {activity.description}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-zinc-500 text-sm italic">
+                    No planting history yet.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowTreeModal(false)}
-              className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleTreeLog}
-              disabled={!treeCount || isLoggingTrees}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white"
-            >
-              {isLoggingTrees ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Log Contribution
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

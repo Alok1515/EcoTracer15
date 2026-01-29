@@ -26,7 +26,7 @@ public class EmissionFactorService {
             case HEATING: return 0.18;
             case FLIGHTS: return 0.15;
             case PRODUCT: return 1.0;
-            case TREE_PLANTING: return 0.0;
+            case TREE_PLANTING: return -21.0;
             default: return 1.0;
         }
     }
