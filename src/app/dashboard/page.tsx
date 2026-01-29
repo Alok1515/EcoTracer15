@@ -51,9 +51,9 @@ export default function DashboardPage() {
   const [amount, setAmount] = useState("");
   const [vehicleType, setVehicleType] = useState("gasoline");
   const [electricitySource, setElectricitySource] = useState("grid");
-  const [heatingFuel, setHeatingFuel] = useState("gas");
-  const [flightClass, setFlightClass] = useState("economy");
-  const [foodType, setFoodType] = useState("meat");
+    const [heatingFuel, setHeatingFuel] = useState("gas");
+    const [flightClass, setFlightClass] = useState("short_economy");
+    const [foodType, setFoodType] = useState("meat");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [precisionMode, setPrecisionMode] = useState(true);
@@ -213,15 +213,63 @@ export default function DashboardPage() {
     const val = parseFloat(amount);
     if (isNaN(val)) return 0;
 
-    const factors: Record<string, number> = {
-      "Transportation": 0.21,
-      "Electricity": 0.82,
-      "Heating": 0.18,
-      "Flights": 0.15,
-      "Food": 2.5
+    const factors: Record<string, any> = {
+      "Transportation": {
+        "gasoline": 0.21,
+        "diesel": 0.19,
+        "electric": 0.05,
+        "hybrid": 0.12,
+        "bus": 0.08,
+        "train": 0.04,
+        "subway": 0.03,
+        "motorcycle": 0.11
+      },
+      "Electricity": {
+        "grid": 0.82,
+        "solar": 0.05,
+        "wind": 0.02,
+        "hydro": 0.03,
+        "biomass": 0.08,
+        "nuclear": 0.01
+      },
+      "Heating": {
+        "gas": 0.18,
+        "oil": 0.25,
+        "electric": 0.45,
+        "wood": 0.02,
+        "heatpump": 0.12,
+        "coal": 0.35
+      },
+      "Flights": {
+        "short_economy": 0.15,
+        "short_business": 0.25,
+        "long_economy": 0.12,
+        "long_business": 0.35,
+        "long_first": 0.45
+      },
+      "Food": {
+        "meat": 2.5,
+        "vegetarian": 1.2,
+        "vegan": 0.8,
+        "beef": 6.0,
+        "seafood": 1.8,
+        "chicken": 1.5
+      }
     };
 
-    return val * (factors[activeCategory] || 0);
+    const categoryFactors = factors[activeCategory] || {};
+    let factor = 0;
+    
+    switch (activeCategory) {
+      case "Transportation": factor = categoryFactors[vehicleType] || 0.21; break;
+      case "Electricity": factor = categoryFactors[electricitySource] || 0.82; break;
+      case "Heating": factor = categoryFactors[heatingFuel] || 0.18; break;
+      case "Flights": factor = categoryFactors[flightClass] || 0.15; break;
+      case "Food": factor = categoryFactors[foodType] || 2.5; break;
+      default: factor = 0;
+    }
+
+    return val * factor;
   };
 
   return (
@@ -382,9 +430,13 @@ export default function DashboardPage() {
                         </SelectTrigger>
                         <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
                           <SelectItem value="gasoline">Car (Gasoline)</SelectItem>
+                          <SelectItem value="diesel">Car (Diesel)</SelectItem>
                           <SelectItem value="electric">Car (Electric)</SelectItem>
                           <SelectItem value="hybrid">Car (Hybrid)</SelectItem>
                           <SelectItem value="bus">Public Bus</SelectItem>
+                          <SelectItem value="train">Train (Intercity)</SelectItem>
+                          <SelectItem value="subway">Subway/Metro</SelectItem>
+                          <SelectItem value="motorcycle">Motorcycle</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -401,6 +453,9 @@ export default function DashboardPage() {
                           <SelectItem value="grid">Power Grid</SelectItem>
                           <SelectItem value="solar">Solar Panels</SelectItem>
                           <SelectItem value="wind">Wind Energy</SelectItem>
+                          <SelectItem value="hydro">Hydroelectric</SelectItem>
+                          <SelectItem value="biomass">Biomass</SelectItem>
+                          <SelectItem value="nuclear">Nuclear</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -417,6 +472,9 @@ export default function DashboardPage() {
                           <SelectItem value="gas">Natural Gas</SelectItem>
                           <SelectItem value="oil">Heating Oil</SelectItem>
                           <SelectItem value="electric">Electric Heat</SelectItem>
+                          <SelectItem value="wood">Wood/Pellets</SelectItem>
+                          <SelectItem value="heatpump">Heat Pump</SelectItem>
+                          <SelectItem value="coal">Coal</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -430,9 +488,11 @@ export default function DashboardPage() {
                           <SelectValue placeholder="Select class" />
                         </SelectTrigger>
                         <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
-                          <SelectItem value="economy">Economy</SelectItem>
-                          <SelectItem value="business">Business</SelectItem>
-                          <SelectItem value="first">First Class</SelectItem>
+                          <SelectItem value="short_economy">Short Haul (Economy)</SelectItem>
+                          <SelectItem value="short_business">Short Haul (Business)</SelectItem>
+                          <SelectItem value="long_economy">Long Haul (Economy)</SelectItem>
+                          <SelectItem value="long_business">Long Haul (Business)</SelectItem>
+                          <SelectItem value="long_first">Long Haul (First Class)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -446,10 +506,12 @@ export default function DashboardPage() {
                           <SelectValue placeholder="Select diet" />
                         </SelectTrigger>
                         <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">
-                          <SelectItem value="meat">Meat Lover</SelectItem>
+                          <SelectItem value="meat">Average Meat Eater</SelectItem>
+                          <SelectItem value="beef">High Beef Consumption</SelectItem>
+                          <SelectItem value="chicken">Poultry/Chicken</SelectItem>
+                          <SelectItem value="seafood">Seafood/Fish</SelectItem>
                           <SelectItem value="vegetarian">Vegetarian</SelectItem>
                           <SelectItem value="vegan">Vegan</SelectItem>
-                          <SelectItem value="beef">High Beef</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
