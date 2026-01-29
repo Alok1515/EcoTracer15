@@ -123,12 +123,15 @@ public class ActivityService {
             monthlyChange = 100.0;
         }
 
-        // Total Emissions for current user
+        // Total Emissions for current user (cumulative net)
         Double totalEmissions = activityRepository.findByUserId(user.getId())
                 .stream()
                 .filter(a -> a != null && a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
+        
+        // Net Balance: Cumulative net capped at 0 as requested by user
+        Double netBalance = Math.max(0.0, totalEmissions);
 
         // Today's Emissions for current user
         LocalDateTime startOfDay = now.with(LocalTime.MIN);
@@ -183,20 +186,20 @@ public class ActivityService {
         Double communityAverage = activeUsersThisMonth > 0 ? totalMonthlyForAll / activeUsersThisMonth : 19.8;
         
         // Calculate Rank (lower emission = better rank)
-        // Sort ascending: [0.0, 5.0, 10.0, 20.0]
         java.util.Collections.sort(allUserMonthlyEmissions);
         int userRank = allUserMonthlyEmissions.indexOf(monthlyEmissions) + 1;
         if (userRank <= 0) userRank = 1;
 
         return new DashboardStatsDTO(
                 todayEmissions,
-                totalPositiveEmissions,
+                totalPositiveEmissions, // Lifetime Emissions card (stats.total)
                 monthlyChange,
                 userRank,
                 treesNeeded,
                 treesPlanted,
                 totalPositiveEmissions,
-                communityAverage
+                communityAverage,
+                netBalance
         );
     }
 }

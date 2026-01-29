@@ -63,6 +63,7 @@ export default function DashboardPage() {
     treesNeeded: 0, 
     treesPlanted: 0,
     totalPositiveEmissions: 0,
+    netBalance: 0,
     average: 19.8, 
     top: 1.3 
   });
@@ -159,6 +160,7 @@ export default function DashboardPage() {
         treesNeeded: data.treesNeeded ?? 0,
         treesPlanted: data.treesPlanted ?? 0,
         totalPositiveEmissions: data.totalPositiveEmissions ?? 0,
+        netBalance: data.netBalance ?? 0,
         average: data.communityAverage ?? 19.8,
         top: 1.3
       });
@@ -409,7 +411,7 @@ export default function DashboardPage() {
                 </svg>
               </div>
             </div>
-            <div className="text-3xl font-bold text-white mb-1">{formatValue(stats.today)} kg</div>
+            <div className="text-3xl font-bold text-white mb-1">{formatValue(stats.netBalance)} kg</div>
             <div className="text-xs text-zinc-500">After {(stats.treesPlanted * 21).toFixed(1)} kg offset</div>
           </CardContent>
         </Card>

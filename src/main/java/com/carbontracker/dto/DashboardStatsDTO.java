@@ -9,10 +9,11 @@ public class DashboardStatsDTO {
     private Integer treesPlanted;
     private Double totalPositiveEmissions;
     private Double communityAverage;
+    private Double netBalance;
 
     public DashboardStatsDTO() {}
 
-    public DashboardStatsDTO(Double todayEmissions, Double totalEmissions, Double monthlyChange, Integer userRank, Integer treesNeeded, Integer treesPlanted, Double totalPositiveEmissions, Double communityAverage) {
+    public DashboardStatsDTO(Double todayEmissions, Double totalEmissions, Double monthlyChange, Integer userRank, Integer treesNeeded, Integer treesPlanted, Double totalPositiveEmissions, Double communityAverage, Double netBalance) {
         this.todayEmissions = todayEmissions;
         this.totalEmissions = totalEmissions;
         this.monthlyChange = monthlyChange;
@@ -21,6 +22,7 @@ public class DashboardStatsDTO {
         this.treesPlanted = treesPlanted;
         this.totalPositiveEmissions = totalPositiveEmissions;
         this.communityAverage = communityAverage;
+        this.netBalance = netBalance;
     }
 
     public Double getTodayEmissions() { return todayEmissions; }
@@ -39,4 +41,6 @@ public class DashboardStatsDTO {
     public void setTotalPositiveEmissions(Double totalPositiveEmissions) { this.totalPositiveEmissions = totalPositiveEmissions; }
     public Double getCommunityAverage() { return communityAverage; }
     public void setCommunityAverage(Double communityAverage) { this.communityAverage = communityAverage; }
+    public Double getNetBalance() { return netBalance; }
+    public void setNetBalance(Double netBalance) { this.netBalance = netBalance; }
 }
