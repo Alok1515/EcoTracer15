@@ -105,7 +105,10 @@ public class ActivityService {
         LocalDateTime startOfLastMonth = startOfMonth.minusMonths(1);
         LocalDateTime endOfLastMonth = startOfMonth.minusSeconds(1);
         Double lastMonthEmissions = activityRepository.findByUserIdAndDateBetween(user.getId(), startOfLastMonth, endOfLastMonth)
-                .stream().mapToDouble(Activity::getEmission).sum();
+                .stream()
+                .filter(a -> a.getEmission() != null)
+                .mapToDouble(Activity::getEmission)
+                .sum();
 
         Double monthlyChange = 0.0;
         if (lastMonthEmissions > 0) {
@@ -133,28 +136,36 @@ public class ActivityService {
         // Trees Needed: Approx 22kg CO2 per tree per year.
         int treesNeeded = (int) Math.ceil(totalEmissions / 22.0);
 
-        // Community Average (Simplified for this exercise)
+        // Community Average and Rank
         List<User> allUsers = userRepository.findAll();
         double totalMonthlyForAll = 0.0;
         int activeUsersThisMonth = 0;
+        java.util.List<Double> allUserEmissions = new java.util.ArrayList<>();
+
         for (User u : allUsers) {
             Double uMonthly = activityRepository.findByUserIdAndDateBetween(u.getId(), startOfMonth, endOfMonth)
                     .stream()
                     .filter(a -> a.getEmission() != null)
                     .mapToDouble(Activity::getEmission)
                     .sum();
+            allUserEmissions.add(uMonthly);
             if (uMonthly > 0) {
                 totalMonthlyForAll += uMonthly;
                 activeUsersThisMonth++;
             }
         }
         Double communityAverage = activeUsersThisMonth > 0 ? totalMonthlyForAll / activeUsersThisMonth : 19.8;
+        
+        // Calculate Rank (lower emission = better rank)
+        java.util.Collections.sort(allUserEmissions);
+        int userRank = allUserEmissions.indexOf(monthlyEmissions) + 1;
+        if (userRank <= 0) userRank = 1;
 
         return new DashboardStatsDTO(
                 todayEmissions,
                 totalEmissions,
                 monthlyChange,
-                11, // userRank
+                userRank,
                 treesNeeded,
                 communityAverage
         );

@@ -175,10 +175,13 @@ export default function DashboardPage() {
         setIsSuccess(true);
         setAmount("");
         setSelectedProduct(null);
+        
+        // Immediate update for better "real-time" feel
+        await fetchData();
+        
         setTimeout(() => {
           setIsSuccess(false);
-          fetchData();
-        }, 2000);
+        }, 3000);
       }
     } catch (err) {
       console.error("Failed to log activity", err);
