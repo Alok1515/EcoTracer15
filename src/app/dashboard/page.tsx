@@ -864,8 +864,8 @@ export default function DashboardPage() {
                           ))}
                         </Pie>
                         <Tooltip 
-                          contentStyle={{ backgroundColor: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: "12px" }}
-                          itemStyle={{ color: "hsl(var(--popover-foreground))" }}
+                          contentStyle={{ backgroundColor: "var(--popover)", border: "1px solid var(--border)", borderRadius: "12px" }}
+                          itemStyle={{ color: "var(--popover-foreground)" }}
                         />
                         <Legend verticalAlign="bottom" height={36}/>
                       </PieChart>
@@ -883,24 +883,24 @@ export default function DashboardPage() {
                   <div className="flex-1 min-h-[250px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={stats.timelineData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                         <XAxis 
                           dataKey="name" 
-                          stroke="hsl(var(--muted-foreground))" 
+                          stroke="var(--muted-foreground)" 
                           fontSize={12} 
                           tickLine={false} 
                           axisLine={false}
                         />
                         <YAxis 
-                          stroke="hsl(var(--muted-foreground))" 
+                          stroke="var(--muted-foreground)" 
                           fontSize={12} 
                           tickLine={false} 
                           axisLine={false}
                           tickFormatter={(value) => `${value}kg`}
                         />
                         <Tooltip 
-                          contentStyle={{ backgroundColor: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: "12px" }}
-                          itemStyle={{ color: "hsl(var(--popover-foreground))" }}
+                          contentStyle={{ backgroundColor: "var(--popover)", border: "1px solid var(--border)", borderRadius: "12px" }}
+                          itemStyle={{ color: "var(--popover-foreground)" }}
                         />
                         <Line 
                           type="monotone" 
