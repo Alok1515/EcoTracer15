@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Leaf, LogIn, UserPlus, LogOut, LayoutDashboard, User } from "lucide-react";
+import { Leaf, LogIn, UserPlus, LogOut, LayoutDashboard, User, Package } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Navbar() {
@@ -51,15 +51,25 @@ export function Navbar() {
             <ThemeToggle />
             {isLoggedIn ? (
             <>
-              <Link
-                href="/dashboard"
-                className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-emerald-600 dark:hover:text-emerald-400 ${
-                  pathname.startsWith("/dashboard") ? "text-emerald-600 dark:text-emerald-400" : "text-zinc-600 dark:text-zinc-400"
-                }`}
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                <span className="hidden sm:inline">Dashboard</span>
-              </Link>
+                <Link
+                  href="/dashboard"
+                  className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-emerald-600 dark:hover:text-emerald-400 ${
+                    pathname === "/dashboard" ? "text-emerald-600 dark:text-emerald-400" : "text-zinc-600 dark:text-zinc-400"
+                  }`}
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span className="hidden sm:inline">Dashboard</span>
+                </Link>
+                <Link
+                  href="/dashboard/lca"
+                  className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-emerald-600 dark:hover:text-emerald-400 ${
+                    pathname === "/dashboard/lca" ? "text-emerald-600 dark:text-emerald-400" : "text-zinc-600 dark:text-zinc-400"
+                  }`}
+                >
+                  <Package className="h-4 w-4" />
+                  <span className="hidden sm:inline">Product LCA</span>
+                </Link>
+
               <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800" />
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
