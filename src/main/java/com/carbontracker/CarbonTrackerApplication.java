@@ -18,19 +18,21 @@ public class CarbonTrackerApplication {
     @Bean
     public CommandLineRunner seedData(EmissionFactorRepository repository) {
         return args -> {
-            if (repository.count() == 0) {
-                repository.save(EmissionFactor.builder()
-                        .category(Activity.ActivityType.TRAVEL)
-                        .co2PerUnit(0.21)
-                        .build());
-                repository.save(EmissionFactor.builder()
-                        .category(Activity.ActivityType.ELECTRICITY)
-                        .co2PerUnit(0.82)
-                        .build());
-                repository.save(EmissionFactor.builder()
-                        .category(Activity.ActivityType.FOOD)
-                        .co2PerUnit(0.50) // Example factor for Food
-                        .build());
+            for (Activity.ActivityType type : Activity.ActivityType.values()) {
+                if (!repository.findByCategory(type).isPresent()) {
+                    double factor = switch (type) {
+                        case TRAVEL -> 0.21;
+                        case ELECTRICITY -> 0.82;
+                        case FOOD -> 0.50;
+                        case HEATING -> 0.18;
+                        case FLIGHTS -> 0.15;
+                        case PRODUCT -> 1.0;
+                    };
+                    repository.save(EmissionFactor.builder()
+                            .category(type)
+                            .co2PerUnit(factor)
+                            .build());
+                }
             }
         };
     }

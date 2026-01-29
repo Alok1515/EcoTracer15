@@ -67,6 +67,7 @@ public class ActivityService {
 
         return activityRepository.findByUserIdAndDateBetween(user.getId(), start, end)
                 .stream()
+                .filter(a -> a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
     }
@@ -81,6 +82,7 @@ public class ActivityService {
 
         return activityRepository.findByUserIdAndDateBetween(user.getId(), start, end)
                 .stream()
+                .filter(a -> a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
     }
@@ -94,7 +96,10 @@ public class ActivityService {
         LocalDateTime startOfMonth = LocalDateTime.of(LocalDate.now().withDayOfMonth(1), LocalTime.MIN);
         LocalDateTime endOfMonth = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
         Double monthlyEmissions = activityRepository.findByUserIdAndDateBetween(user.getId(), startOfMonth, endOfMonth)
-                .stream().mapToDouble(Activity::getEmission).sum();
+                .stream()
+                .filter(a -> a.getEmission() != null)
+                .mapToDouble(Activity::getEmission)
+                .sum();
 
         // Previous Month
         LocalDateTime startOfLastMonth = startOfMonth.minusMonths(1);
@@ -111,13 +116,19 @@ public class ActivityService {
 
         // Total
         Double totalEmissions = activityRepository.findByUserId(user.getId())
-                .stream().mapToDouble(Activity::getEmission).sum();
+                .stream()
+                .filter(a -> a.getEmission() != null)
+                .mapToDouble(Activity::getEmission)
+                .sum();
 
         // Today
         LocalDateTime startOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
         LocalDateTime endOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
         Double todayEmissions = activityRepository.findByUserIdAndDateBetween(user.getId(), startOfDay, endOfDay)
-                .stream().mapToDouble(Activity::getEmission).sum();
+                .stream()
+                .filter(a -> a.getEmission() != null)
+                .mapToDouble(Activity::getEmission)
+                .sum();
 
         // Trees Needed: Approx 22kg CO2 per tree per year.
         int treesNeeded = (int) Math.ceil(totalEmissions / 22.0);
@@ -128,7 +139,10 @@ public class ActivityService {
         int activeUsersThisMonth = 0;
         for (User u : allUsers) {
             Double uMonthly = activityRepository.findByUserIdAndDateBetween(u.getId(), startOfMonth, endOfMonth)
-                    .stream().mapToDouble(Activity::getEmission).sum();
+                    .stream()
+                    .filter(a -> a.getEmission() != null)
+                    .mapToDouble(Activity::getEmission)
+                    .sum();
             if (uMonthly > 0) {
                 totalMonthlyForAll += uMonthly;
                 activeUsersThisMonth++;
@@ -136,13 +150,13 @@ public class ActivityService {
         }
         Double communityAverage = activeUsersThisMonth > 0 ? totalMonthlyForAll / activeUsersThisMonth : 19.8;
 
-        return DashboardStatsDTO.builder()
-                .todayEmissions(todayEmissions)
-                .totalEmissions(totalEmissions)
-                .monthlyChange(monthlyChange)
-                .userRank(11) // Simple mock rank
-                .treesNeeded(treesNeeded)
-                .communityAverage(communityAverage)
-                .build();
+        return new DashboardStatsDTO(
+                todayEmissions,
+                totalEmissions,
+                monthlyChange,
+                11, // userRank
+                treesNeeded,
+                communityAverage
+        );
     }
 }

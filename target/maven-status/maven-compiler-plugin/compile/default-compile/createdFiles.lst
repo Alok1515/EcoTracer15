@@ -7,8 +7,10 @@ com/carbontracker/service/AuthService.class
 com/carbontracker/controller/EmissionController.class
 com/carbontracker/model/Activity$ActivityBuilder.class
 com/carbontracker/dto/ActivityDTO.class
+com/carbontracker/CarbonTrackerApplication$1.class
 com/carbontracker/security/JwtAuthenticationFilter.class
 com/carbontracker/controller/AuthController.class
+com/carbontracker/dto/DashboardStatsDTO.class
 com/carbontracker/model/EmissionFactor.class
 com/carbontracker/security/UserDetailsServiceImpl.class
 com/carbontracker/dto/LoginRequest.class
