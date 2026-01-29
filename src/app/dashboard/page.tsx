@@ -69,6 +69,7 @@ import {
 import { AIAssistant } from "@/components/AIAssistant";
 import { Leaderboard } from "@/components/Leaderboard";
 import { Insights } from "@/components/Insights";
+import { Settings as SettingsComponent } from "@/components/Settings";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -409,7 +410,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto mb-8">
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-1 flex items-center justify-between gap-2">
           <div className="flex flex-1 items-center gap-1">
-            {["Overview", "Leaderboard", "Insights", "AI Assistant"].map((view) => (
+            {["Overview", "Leaderboard", "Insights", "AI Assistant", "Settings"].map((view) => (
               <button 
                 key={view}
                 onClick={() => setActiveView(view)}
@@ -1044,6 +1045,19 @@ export default function DashboardPage() {
             className="max-w-7xl mx-auto"
           >
             <AIAssistant />
+          </motion.div>
+        )}
+
+        {activeView === "Settings" && (
+          <motion.div
+            key="settings"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="max-w-7xl mx-auto"
+          >
+            <SettingsComponent />
           </motion.div>
         )}
       </AnimatePresence>

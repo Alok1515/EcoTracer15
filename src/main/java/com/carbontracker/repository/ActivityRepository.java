@@ -8,4 +8,5 @@ import java.util.List;
 public interface ActivityRepository extends MongoRepository<Activity, String> {
     List<Activity> findByUserId(String userId);
     List<Activity> findByUserIdAndDateBetween(String userId, LocalDateTime start, LocalDateTime end);
+    void deleteByUserId(String userId);
 }
