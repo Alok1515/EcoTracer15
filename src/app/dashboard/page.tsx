@@ -101,20 +101,31 @@ export default function DashboardPage() {
     if (!token) return;
 
     try {
-      const headers = { "Authorization": `Bearer ${token}` };
+      const headers = { 
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/json"
+      };
+      console.log("Fetching stats...");
       const res = await fetch("http://localhost:8080/api/emission/stats", { headers });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const data = await res.json();
+      console.log("Stats received:", data);
+      
       setStats({
-        today: data.todayEmissions || 0,
-        total: data.totalEmissions || 0,
-        monthlyChange: data.monthlyChange || 0,
-        rank: data.userRank || 11,
-        treesNeeded: data.treesNeeded || 0,
-        average: data.communityAverage || 19.8,
+        today: data.todayEmissions ?? 0,
+        total: data.totalEmissions ?? 0,
+        monthlyChange: data.monthlyChange ?? 0,
+        rank: data.userRank ?? 1,
+        treesNeeded: data.treesNeeded ?? 0,
+        average: data.communityAverage ?? 19.8,
         top: 1.3
       });
     } catch (err) {
-      console.error("Failed to fetch dashboard data", err);
+      console.error("Failed to fetch dashboard data:", err);
     } finally {
       setIsLoading(false);
     }

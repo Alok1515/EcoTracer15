@@ -92,21 +92,23 @@ public class ActivityService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Current Month
-        LocalDateTime startOfMonth = LocalDateTime.of(LocalDate.now().withDayOfMonth(1), LocalTime.MIN);
-        LocalDateTime endOfMonth = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfMonth = now.withDayOfMonth(1).with(LocalTime.MIN);
+        LocalDateTime endOfMonth = now.with(LocalTime.MAX);
+        
+        // Current Month Emissions for current user
         Double monthlyEmissions = activityRepository.findByUserIdAndDateBetween(user.getId(), startOfMonth, endOfMonth)
                 .stream()
-                .filter(a -> a.getEmission() != null)
+                .filter(a -> a != null && a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
 
-        // Previous Month
+        // Previous Month Emissions for current user
         LocalDateTime startOfLastMonth = startOfMonth.minusMonths(1);
         LocalDateTime endOfLastMonth = startOfMonth.minusSeconds(1);
         Double lastMonthEmissions = activityRepository.findByUserIdAndDateBetween(user.getId(), startOfLastMonth, endOfLastMonth)
                 .stream()
-                .filter(a -> a.getEmission() != null)
+                .filter(a -> a != null && a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
 
@@ -117,30 +119,30 @@ public class ActivityService {
             monthlyChange = 100.0;
         }
 
-        // Total
+        // Total Emissions for current user
         Double totalEmissions = activityRepository.findByUserId(user.getId())
                 .stream()
-                .filter(a -> a.getEmission() != null)
+                .filter(a -> a != null && a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
 
-        // Today
-        LocalDateTime startOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
-        LocalDateTime endOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+        // Today's Emissions for current user
+        LocalDateTime startOfDay = now.with(LocalTime.MIN);
+        LocalDateTime endOfDay = now.with(LocalTime.MAX);
         Double todayEmissions = activityRepository.findByUserIdAndDateBetween(user.getId(), startOfDay, endOfDay)
                 .stream()
-                .filter(a -> a.getEmission() != null)
+                .filter(a -> a != null && a.getEmission() != null)
                 .mapToDouble(Activity::getEmission)
                 .sum();
 
         // Trees Needed: Approx 22kg CO2 per tree per year.
         int treesNeeded = (int) Math.ceil(totalEmissions / 22.0);
 
-        // Community Average and Rank
+        // Community Stats
         List<User> allUsers = userRepository.findAll();
         double totalMonthlyForAll = 0.0;
         int activeUsersThisMonth = 0;
-        java.util.List<Double> allUserEmissions = new java.util.ArrayList<>();
+        List<Double> allUserMonthlyEmissions = new java.util.ArrayList<>();
 
         for (User u : allUsers) {
             if (u.getId() == null) continue;
@@ -151,26 +153,28 @@ public class ActivityService {
                     .mapToDouble(Activity::getEmission)
                     .sum();
             
-            allUserEmissions.add(uMonthly);
+            allUserMonthlyEmissions.add(uMonthly);
             if (uMonthly > 0) {
                 totalMonthlyForAll += uMonthly;
                 activeUsersThisMonth++;
             }
         }
+        
         Double communityAverage = activeUsersThisMonth > 0 ? totalMonthlyForAll / activeUsersThisMonth : 19.8;
         
         // Calculate Rank (lower emission = better rank)
-        java.util.Collections.sort(allUserEmissions);
-        int userRank = allUserEmissions.indexOf(monthlyEmissions) + 1;
+        // Sort ascending: [0.0, 5.0, 10.0, 20.0]
+        java.util.Collections.sort(allUserMonthlyEmissions);
+        int userRank = allUserMonthlyEmissions.indexOf(monthlyEmissions) + 1;
         if (userRank <= 0) userRank = 1;
 
         return new DashboardStatsDTO(
-                todayEmissions != null ? todayEmissions : 0.0,
-                totalEmissions != null ? totalEmissions : 0.0,
-                monthlyChange != null ? monthlyChange : 0.0,
+                todayEmissions,
+                totalEmissions,
+                monthlyChange,
                 userRank,
                 treesNeeded,
-                communityAverage != null ? communityAverage : 19.8
+                communityAverage
         );
     }
 }

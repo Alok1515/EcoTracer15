@@ -15,6 +15,18 @@ public class EmissionFactorService {
     public Double getEmissionFactor(Activity.ActivityType category) {
         return emissionFactorRepository.findByCategory(category)
                 .map(EmissionFactor::getCo2PerUnit)
-                .orElseThrow(() -> new RuntimeException("Emission factor not found for category: " + category));
+                .orElseGet(() -> getDefaultFactor(category));
+    }
+
+    private Double getDefaultFactor(Activity.ActivityType category) {
+        switch (category) {
+            case TRAVEL: return 0.21;
+            case ELECTRICITY: return 0.82;
+            case FOOD: return 2.5;
+            case HEATING: return 0.18;
+            case FLIGHTS: return 0.15;
+            case PRODUCT: return 1.0;
+            default: return 1.0;
+        }
     }
 }
