@@ -15,17 +15,19 @@ public class DataInitializer {
     @Bean
     CommandLineRunner initDatabase(EmissionFactorRepository repository) {
         return args -> {
-            // Emission factors are based on IPCC and UK DEFRA publicly available datasets.
-            if (repository.count() == 0) {
-                repository.saveAll(List.of(
-                    new EmissionFactor(null, Activity.ActivityType.TRAVEL, 0.21),
-                    new EmissionFactor(null, Activity.ActivityType.ELECTRICITY, 0.82),
-                    new EmissionFactor(null, Activity.ActivityType.FOOD, 2.5),
-                    new EmissionFactor(null, Activity.ActivityType.HEATING, 0.18),
-                    new EmissionFactor(null, Activity.ActivityType.FLIGHTS, 0.15),
-                    new EmissionFactor(null, Activity.ActivityType.PRODUCT, 1.0)
-                ));
-            }
+            // Seed all emission factor types if they don't exist
+            seedIfMissing(repository, Activity.ActivityType.TRAVEL, 0.21);
+            seedIfMissing(repository, Activity.ActivityType.ELECTRICITY, 0.82);
+            seedIfMissing(repository, Activity.ActivityType.FOOD, 2.5);
+            seedIfMissing(repository, Activity.ActivityType.HEATING, 0.18);
+            seedIfMissing(repository, Activity.ActivityType.FLIGHTS, 0.15);
+            seedIfMissing(repository, Activity.ActivityType.PRODUCT, 1.0);
         };
+    }
+
+    private void seedIfMissing(EmissionFactorRepository repository, Activity.ActivityType type, double value) {
+        if (repository.findByCategory(type).isEmpty()) {
+            repository.save(new EmissionFactor(null, type, value));
+        }
     }
 }

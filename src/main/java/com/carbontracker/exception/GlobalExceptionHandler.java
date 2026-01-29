@@ -19,6 +19,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleException(Exception ex) {
+        ex.printStackTrace(); // Log the stack trace for debugging
         Map<String, String> response = new HashMap<>();
         response.put("error", "An internal server error occurred");
         return ResponseEntity.internalServerError().body(response);

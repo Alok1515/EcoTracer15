@@ -143,11 +143,14 @@ public class ActivityService {
         java.util.List<Double> allUserEmissions = new java.util.ArrayList<>();
 
         for (User u : allUsers) {
+            if (u.getId() == null) continue;
+            
             Double uMonthly = activityRepository.findByUserIdAndDateBetween(u.getId(), startOfMonth, endOfMonth)
                     .stream()
-                    .filter(a -> a.getEmission() != null)
+                    .filter(a -> a != null && a.getEmission() != null)
                     .mapToDouble(Activity::getEmission)
                     .sum();
+            
             allUserEmissions.add(uMonthly);
             if (uMonthly > 0) {
                 totalMonthlyForAll += uMonthly;
@@ -162,12 +165,12 @@ public class ActivityService {
         if (userRank <= 0) userRank = 1;
 
         return new DashboardStatsDTO(
-                todayEmissions,
-                totalEmissions,
-                monthlyChange,
+                todayEmissions != null ? todayEmissions : 0.0,
+                totalEmissions != null ? totalEmissions : 0.0,
+                monthlyChange != null ? monthlyChange : 0.0,
                 userRank,
                 treesNeeded,
-                communityAverage
+                communityAverage != null ? communityAverage : 19.8
         );
     }
 }
