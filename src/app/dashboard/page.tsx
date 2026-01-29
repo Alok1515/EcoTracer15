@@ -91,6 +91,19 @@ export default function DashboardPage() {
   const [treeNote, setTreeNote] = useState("");
   const [isLoggingTrees, setIsLoggingTrees] = useState(false);
 
+  const formatValue = (num: number) => {
+    if (num >= 1000000000) {
+      return (num / 1000000000).toFixed(1) + " B";
+    }
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + " M";
+    }
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + " k";
+    }
+    return num.toFixed(1);
+  };
+
   const products = [
     { name: "MacBook Pro 14\"", category: "Electronics", co2: 245, icon: Package },
     { name: "Denim Jeans", category: "Apparel", co2: 33.4, icon: Package },
@@ -396,8 +409,8 @@ export default function DashboardPage() {
                 </svg>
               </div>
             </div>
-            <div className="text-3xl font-bold text-white mb-1">{stats.today.toFixed(1)} kg</div>
-            <div className="text-xs text-zinc-500">After 21.0 kg offset</div>
+            <div className="text-3xl font-bold text-white mb-1">{formatValue(stats.today)} kg</div>
+            <div className="text-xs text-zinc-500">After {(stats.treesPlanted * 21).toFixed(1)} kg offset</div>
           </CardContent>
         </Card>
 
@@ -409,7 +422,7 @@ export default function DashboardPage() {
                 <span className="text-zinc-400 text-lg">+</span>
               </div>
             </div>
-            <div className="text-3xl font-bold text-white mb-1">{stats.total.toFixed(1)} kg</div>
+            <div className="text-3xl font-bold text-white mb-1">{formatValue(stats.total)} kg</div>
             <div className="text-xs text-zinc-500">Total logged CO2</div>
           </CardContent>
         </Card>

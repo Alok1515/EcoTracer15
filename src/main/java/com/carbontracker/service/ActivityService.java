@@ -185,7 +185,7 @@ public class ActivityService {
 
         return new DashboardStatsDTO(
                 todayEmissions,
-                totalEmissions,
+                totalPositiveEmissions,
                 monthlyChange,
                 userRank,
                 treesNeeded,
