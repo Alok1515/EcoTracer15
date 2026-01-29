@@ -18,11 +18,17 @@ export async function POST(req: Request) {
     
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Format history for Gemini
-    const history = messages.slice(0, -1).map((m: any) => ({
+    // Format history for Gemini, ensuring it starts with a 'user' role
+    let history = messages.slice(0, -1).map((m: any) => ({
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
     }));
+
+    // Gemini requires history to start with a user message
+    while (history.length > 0 && history[0].role !== "user") {
+      history.shift();
+    }
+    console.log("Chat history sent to Gemini:", JSON.stringify(history, null, 2));
 
     const chat = model.startChat({
       history: history,
