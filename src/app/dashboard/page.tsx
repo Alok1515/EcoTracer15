@@ -205,6 +205,25 @@ export default function DashboardPage() {
     }
   };
 
+  const getCalculatedEmission = () => {
+    if (isProductMode && selectedProduct) {
+      return selectedProduct.co2;
+    }
+    if (!amount) return 0;
+    const val = parseFloat(amount);
+    if (isNaN(val)) return 0;
+
+    const factors: Record<string, number> = {
+      "Transportation": 0.21,
+      "Electricity": 0.82,
+      "Heating": 0.18,
+      "Flights": 0.15,
+      "Food": 2.5
+    };
+
+    return val * (factors[activeCategory] || 0);
+  };
+
   return (
     <div className="min-h-screen bg-black text-zinc-300 p-6 font-sans">
       {/* Top Navigation Bar */}
@@ -443,12 +462,35 @@ export default function DashboardPage() {
                         placeholder="Enter value" 
                         type="number"
                         value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
+                        onChange={(e) => {
+                          setAmount(e.target.value);
+                          setIsProductMode(false);
+                        }}
                         className="bg-zinc-950/50 border-zinc-800 h-12 rounded-xl pr-16 text-zinc-300 placeholder:text-zinc-600 focus:ring-0 focus:border-zinc-700"
                       />
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-500">{getUnit()}</div>
                     </div>
                   </div>
+
+                  <AnimatePresence>
+                    {amount && !isProductMode && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="p-4 bg-zinc-950/30 border border-zinc-800/50 rounded-xl space-y-2"
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-zinc-500 uppercase tracking-wider font-bold">Estimated Emission</span>
+                          <span className="text-sm font-bold text-white">{getCalculatedEmission().toFixed(2)} kg CO2e</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-zinc-500 uppercase tracking-wider font-bold">Precision Rate</span>
+                          <span className="text-sm font-bold text-emerald-500">{getSourceAndPrecision().precision}</span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 <Button 
@@ -503,18 +545,25 @@ export default function DashboardPage() {
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl"
+                      className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl space-y-2"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-emerald-500 uppercase tracking-wider font-bold">Estimated Impact</span>
                         <span className="text-lg font-bold text-white">{selectedProduct.co2} kg CO2e</span>
+                      </div>
+                      <div className="flex items-center justify-between border-t border-emerald-500/10 pt-2">
+                        <span className="text-[10px] text-emerald-500/60 uppercase tracking-wider font-bold">Precision Rate</span>
+                        <span className="text-xs font-bold text-emerald-500/80">92%</span>
                       </div>
                     </motion.div>
                   )}
                 </div>
 
                 <Button 
-                  onClick={() => handleAddEmission(true)}
+                  onClick={() => {
+                    setIsProductMode(true);
+                    handleAddEmission(true);
+                  }}
                   disabled={isLogging || !selectedProduct}
                   className="w-full h-14 bg-white hover:bg-zinc-200 text-black font-semibold rounded-xl text-base transition-all disabled:opacity-50"
                 >
@@ -633,17 +682,19 @@ export default function DashboardPage() {
               <AlertTriangle className="w-5 h-5 text-amber-500" />
               Confirm Activity Log
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400 space-y-4 pt-2">
-              <p>Are you sure you want to log this activity? This will update your carbon footprint stats for today.</p>
-              
-              <div className="bg-zinc-950/50 p-4 rounded-xl border border-zinc-800 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs uppercase tracking-wider font-bold text-zinc-500">Precision Rate</span>
-                  <span className="text-sm font-semibold text-emerald-500">{getSourceAndPrecision().precision}</span>
-                </div>
-                <div className="space-y-1">
-                  <span className="text-xs uppercase tracking-wider font-bold text-zinc-500">Data Source</span>
-                  <p className="text-sm text-zinc-300 leading-snug">{getSourceAndPrecision().source}</p>
+            <AlertDialogDescription asChild>
+              <div className="text-zinc-400 space-y-4 pt-2">
+                <p>Are you sure you want to log this activity? This will update your carbon footprint stats for today.</p>
+                
+                <div className="bg-zinc-950/50 p-4 rounded-xl border border-zinc-800 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs uppercase tracking-wider font-bold text-zinc-500">Precision Rate</span>
+                    <span className="text-sm font-semibold text-emerald-500">{getSourceAndPrecision().precision}</span>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs uppercase tracking-wider font-bold text-zinc-500">Data Source</span>
+                    <p className="text-sm text-zinc-300 leading-snug">{getSourceAndPrecision().source}</p>
+                  </div>
                 </div>
               </div>
             </AlertDialogDescription>
