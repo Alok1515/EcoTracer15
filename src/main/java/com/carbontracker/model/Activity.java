@@ -47,7 +47,7 @@ public class Activity {
     public void setDate(LocalDateTime date) { this.date = date; }
 
     public enum ActivityType {
-        TRAVEL, ELECTRICITY, FOOD, HEATING, FLIGHTS, PRODUCT
+        TRAVEL, ELECTRICITY, FOOD, HEATING, FLIGHTS, PRODUCT, TREE_PLANTING
     }
 
     public static class ActivityBuilder {

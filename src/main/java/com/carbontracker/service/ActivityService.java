@@ -136,7 +136,16 @@ public class ActivityService {
                 .sum();
 
         // Trees Needed: Approx 22kg CO2 per tree per year.
-        int treesNeeded = (int) Math.ceil(totalEmissions / 22.0);
+        int calculatedTreesNeeded = (int) Math.ceil(totalEmissions / 22.0);
+        
+        // Subtract trees already planted
+        int treesPlanted = activityRepository.findByUserId(user.getId())
+                .stream()
+                .filter(a -> a != null && a.getType() == Activity.ActivityType.TREE_PLANTING)
+                .mapToInt(a -> a.getValue().intValue())
+                .sum();
+        
+        int treesNeeded = Math.max(0, calculatedTreesNeeded - treesPlanted);
 
         // Community Stats
         List<User> allUsers = userRepository.findAll();

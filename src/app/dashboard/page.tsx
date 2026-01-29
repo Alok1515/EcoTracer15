@@ -19,7 +19,8 @@ import {
   Info,
   Loader2,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Leaf
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import {
   AlertDialog,
@@ -39,6 +41,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -67,6 +77,13 @@ export default function DashboardPage() {
   const [precisionMode, setPrecisionMode] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isProductMode, setIsProductMode] = useState(false);
+
+  // Tree Planting State
+  const [showTreeModal, setShowTreeModal] = useState(false);
+  const [treeCount, setTreeCount] = useState("");
+  const [treeDate, setTreeDate] = useState(new Date().toISOString().split('T')[0]);
+  const [treeNote, setTreeNote] = useState("");
+  const [isLoggingTrees, setIsLoggingTrees] = useState(false);
 
   const products = [
     { name: "MacBook Pro 14\"", category: "Electronics", co2: 245, icon: Package },
@@ -198,6 +215,44 @@ export default function DashboardPage() {
       console.error("Failed to log activity", err);
     } finally {
       setIsLogging(false);
+    }
+  };
+
+  const handleTreeLog = async () => {
+    if (!treeCount || isNaN(parseInt(treeCount))) return;
+    
+    setIsLoggingTrees(true);
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const response = await fetch("http://localhost:8080/api/activity/add", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          type: "TREE_PLANTING",
+          description: treeNote || "Planted trees",
+          value: parseFloat(treeCount),
+          // Backend currently sets date to now, but we can send it if needed 
+          // though ActivityDTO might need update. For now use current logic.
+        }),
+      });
+
+      if (response.ok) {
+        setIsSuccess(true);
+        setTreeCount("");
+        setTreeNote("");
+        setShowTreeModal(false);
+        await fetchData();
+        setTimeout(() => setIsSuccess(false), 3000);
+      }
+    } catch (err) {
+      console.error("Failed to log tree planting", err);
+    } finally {
+      setIsLoggingTrees(false);
     }
   };
 
@@ -377,14 +432,15 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-zinc-900/40 border-zinc-800 rounded-2xl md:col-span-1">
+        <Card 
+          className="bg-zinc-900/40 border-zinc-800 rounded-2xl md:col-span-1 cursor-pointer hover:bg-zinc-800/40 transition-all group"
+          onClick={() => setShowTreeModal(true)}
+        >
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm text-zinc-400">Trees Needed</span>
-              <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center">
-                <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 2L12 22M12 22L7 17M12 22L17 17M12 2L7 7M12 2L17 7"/>
-                </svg>
+              <div className="w-8 h-8 rounded-lg bg-zinc-800 group-hover:bg-emerald-500/20 flex items-center justify-center transition-colors">
+                <Leaf className="w-4 h-4 text-emerald-500" />
               </div>
             </div>
             <div className="text-3xl font-bold text-white mb-1">{stats.treesNeeded}</div>
@@ -807,6 +863,70 @@ export default function DashboardPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={showTreeModal} onOpenChange={setShowTreeModal}>
+        <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-emerald-500">
+              <Leaf className="w-5 h-5" />
+              Log Tree Planting
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              Record your contribution to nature. This will offset your carbon footprint.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="treeCount" className="text-zinc-400">Number of Trees</Label>
+              <Input
+                id="treeCount"
+                type="number"
+                placeholder="How many trees did you plant?"
+                value={treeCount}
+                onChange={(e) => setTreeCount(e.target.value)}
+                className="bg-zinc-950 border-zinc-800 focus:ring-emerald-500"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="treeDate" className="text-zinc-400">Date</Label>
+              <Input
+                id="treeDate"
+                type="date"
+                value={treeDate}
+                onChange={(e) => setTreeDate(e.target.value)}
+                className="bg-zinc-950 border-zinc-800 focus:ring-emerald-500"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="treeNote" className="text-zinc-400">Note (Optional)</Label>
+              <Textarea
+                id="treeNote"
+                placeholder="Where did you plant them? Any special occasion?"
+                value={treeNote}
+                onChange={(e) => setTreeNote(e.target.value)}
+                className="bg-zinc-950 border-zinc-800 focus:ring-emerald-500 min-h-[100px]"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowTreeModal(false)}
+              className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleTreeLog}
+              disabled={!treeCount || isLoggingTrees}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white"
+            >
+              {isLoggingTrees ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Log Contribution
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
