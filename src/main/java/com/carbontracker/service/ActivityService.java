@@ -262,6 +262,12 @@ public class ActivityService {
         
         Double communityAverage = activeUsersThisMonth > 0 ? totalMonthlyForAll / activeUsersThisMonth : 19.8;
         
+        // Top Performer Emissions (Lowest monthly emission among active users)
+        Double topPerformerEmissions = allUserNetEmissions.stream()
+                .filter(e -> e > 0)
+                .min(Double::compare)
+                .orElse(1.3);
+
         // Calculate Rank based on Net Emission
         Collections.sort(allUserNetEmissions);
         int userRank = allUserNetEmissions.indexOf(totalEmissionsSum) + 1;
@@ -289,6 +295,7 @@ public class ActivityService {
                 communityAverage,
                 netBalance,
                 currentStreak,
+                topPerformerEmissions,
                 categoryEmissions,
                 timelineData
         );
