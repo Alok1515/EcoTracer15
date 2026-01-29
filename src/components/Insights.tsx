@@ -44,7 +44,7 @@ export function Insights({ stats, activities, user }: InsightsProps) {
 
   useEffect(() => {
     generateInsights();
-  }, []);
+  }, [user?.name, stats.total, activities.length]);
 
   const generateInsights = async () => {
     setIsLoading(true);

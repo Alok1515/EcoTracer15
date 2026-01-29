@@ -29,7 +29,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export function Settings() {
+interface SettingsProps {
+  onUpdate?: (user: any) => void;
+}
+
+export function Settings({ onUpdate }: SettingsProps) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [name, setName] = useState("");
@@ -67,18 +71,24 @@ export function Settings() {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify({
+        const updatedUser = {
           name: data.name,
           email: data.email,
           userType: data.userType
-        }));
+        };
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        
         setUser(data);
+        if (onUpdate) {
+          onUpdate(updatedUser);
+        }
+        
         setPassword("");
         setMessage({ type: "success", text: "Profile updated successfully!" });
         
-        // Refresh page after a delay to update all components
-        setTimeout(() => window.location.reload(), 1500);
+        // No longer strictly needed for state sync if onUpdate is used, 
+        // but keeping a short delay before any potential redirect/refresh
       } else {
         const errorData = await response.json();
         setMessage({ type: "error", text: errorData.message || "Failed to update profile" });

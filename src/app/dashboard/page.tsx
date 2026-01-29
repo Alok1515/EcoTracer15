@@ -1057,7 +1057,7 @@ export default function DashboardPage() {
             transition={{ duration: 0.2 }}
             className="max-w-7xl mx-auto"
           >
-            <SettingsComponent />
+            <SettingsComponent onUpdate={(updatedUser) => setUser(updatedUser)} />
           </motion.div>
         )}
       </AnimatePresence>
