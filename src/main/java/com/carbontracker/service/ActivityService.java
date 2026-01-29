@@ -279,10 +279,8 @@ public class ActivityService {
     }
 
     public List<LeaderboardDTO> getLeaderboard() {
-        System.out.println("Generating leaderboard...");
         List<User> allUsers = userRepository.findAll();
         List<Activity> allActivities = activityRepository.findAll();
-        System.out.println("Found " + allUsers.size() + " users and " + allActivities.size() + " activities");
 
         Map<String, List<Activity>> activitiesByUser = allActivities.stream()
                 .filter(a -> a.getUserId() != null)
