@@ -63,26 +63,40 @@ export function AIAssistant() {
     setInput("");
     setIsLoading(true);
 
-    // Mock AI Response
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [...messages, userMessage].map(m => ({
+            role: m.role,
+            content: m.content
+          }))
+        })
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch AI response");
+      const data = await response.json();
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: getMockResponse(content),
+        content: data.text || "I'm sorry, I couldn't process that request.",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
       };
       setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error("Chat error:", error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "I'm having trouble connecting right now. Please check your API key and try again later.",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
-  };
-
-  const getMockResponse = (query: string) => {
-    const q = query.toLowerCase();
-    if (q.includes("reduce")) return "To reduce your footprint, consider: 1. Switching to LED bulbs, 2. Reducing meat consumption, and 3. Using public transport more often. Your current travel emissions are your biggest opportunity for improvement.";
-    if (q.includes("analyze")) return "Based on your data, your emissions have decreased by 12% this month! Your food consumption is very low impact, but your electricity usage is slightly above average for your region.";
-    if (q.includes("travel")) return "For sustainable travel: Try to prefer trains over short-haul flights. If you must drive, carpooling or switching to an EV can reduce emissions by up to 70% per mile.";
-    if (q.includes("energy")) return "Home energy tips: Lower your thermostat by just 1 degree, ensure your home is well-insulated, and consider solar panels if your location permits. These can offset up to 2 tons of CO2 annually.";
-    return "That's a great question about sustainability! I'm analyzing your current patterns to give you the most accurate advice. Is there a specific area like travel or food you'd like to focus on?";
+    }
   };
 
   return (
