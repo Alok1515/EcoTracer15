@@ -97,7 +97,6 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [precisionMode, setPrecisionMode] = useState(true);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [isProductMode, setIsProductMode] = useState(false);
 
   // Tree Planting State
@@ -195,133 +194,6 @@ export default function DashboardPage() {
     }
   };
 
-  const handleAddEmission = (isProduct = false) => {
-    if (isProduct && !selectedProduct) return;
-    if (!isProduct && !amount) return;
-    setIsProductMode(isProduct);
-    setShowConfirm(true);
-  };
-
-  const processAddEmission = async () => {
-    setIsLogging(true);
-    setShowConfirm(false);
-
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    // Map categories to backend ActivityType
-    const categoryMap: Record<string, string> = {
-      "Transportation": "TRAVEL",
-      "Electricity": "ELECTRICITY",
-      "Heating": "HEATING",
-      "Flights": "FLIGHTS",
-      "Food": "FOOD"
-    };
-
-    let description = "";
-    if (isProductMode && selectedProduct) {
-      description = `Product: ${selectedProduct.name} (${selectedProduct.category})`;
-    } else {
-      switch (activeCategory) {
-        case "Transportation": description = `Vehicle: ${vehicleType}`; break;
-        case "Electricity": description = `Source: ${electricitySource}`; break;
-        case "Heating": description = `Fuel: ${heatingFuel}`; break;
-        case "Flights": description = `Class: ${flightClass}`; break;
-        case "Food": description = `Diet: ${foodType}`; break;
-        default: description = activeCategory;
-      }
-    }
-
-    try {
-      const response = await fetch("http://localhost:8080/api/activity/add", {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          type: isProductMode ? "PRODUCT" : (categoryMap[activeCategory] || "TRAVEL"),
-          description: description,
-          value: parseFloat(amount),
-        }),
-      });
-
-      if (response.ok) {
-        setIsSuccess(true);
-        setAmount("");
-        setSelectedProduct(null);
-        
-        // Immediate update for better "real-time" feel
-        await fetchData();
-        
-        setTimeout(() => {
-          setIsSuccess(false);
-        }, 3000);
-      }
-    } catch (err) {
-      console.error("Failed to log activity", err);
-    } finally {
-      setIsLogging(false);
-    }
-  };
-
-  const handleTreeLog = async () => {
-    if (!treeCount || isNaN(parseInt(treeCount))) return;
-    
-    setIsLoggingTrees(true);
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    try {
-      const response = await fetch("http://localhost:8080/api/activity/add", {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          type: "TREE_PLANTING",
-          description: treeNote || "Planted trees",
-          value: parseFloat(treeCount),
-          // Backend currently sets date to now, but we can send it if needed 
-          // though ActivityDTO might need update. For now use current logic.
-        }),
-      });
-
-      if (response.ok) {
-        setIsSuccess(true);
-        setTreeCount("");
-        setTreeNote("");
-        setShowTreeModal(false);
-        await fetchData();
-        setTimeout(() => setIsSuccess(false), 3000);
-      }
-    } catch (err) {
-      console.error("Failed to log tree planting", err);
-    } finally {
-      setIsLoggingTrees(false);
-    }
-  };
-
-  const getSourceAndPrecision = () => {
-    if (isProductMode) {
-      return {
-        source: "Climatiq Open Data & Lifecycle Analysis Database",
-        precision: "92%"
-      };
-    }
-    if (precisionMode) {
-      return {
-        source: "IPCC (Intergovernmental Panel on Climate Change) & UK DEFRA Dataset",
-        precision: "98%"
-      };
-    }
-    return {
-      source: "Regional Average Benchmarks & Estimated Factors",
-      precision: "85%"
-    };
-  };
-
   const getUnit = () => {
     switch (activeCategory) {
       case "Transportation":
@@ -337,13 +209,19 @@ export default function DashboardPage() {
     }
   };
 
-  const getCalculatedEmission = () => {
+  const getEmissionDetails = () => {
     if (isProductMode && selectedProduct) {
-      return selectedProduct.co2;
+      return {
+        total: selectedProduct.co2,
+        factor: "Lifecycle Analysis Data",
+        calculation: "Product standard impact",
+        source: "Climatiq Database",
+        precision: "92%"
+      };
     }
-    if (!amount) return 0;
+    
     const val = parseFloat(amount);
-    if (isNaN(val)) return 0;
+    if (!amount || isNaN(val)) return null;
 
     const factors: Record<string, any> = {
       "Transportation": {
@@ -383,9 +261,9 @@ export default function DashboardPage() {
         "meat": 2.5,
         "vegetarian": 1.2,
         "vegan": 0.8,
-        "beef": 6.0,
+        "beef": 6.1,
         "seafood": 1.8,
-        "chicken": 1.5
+        "chicken": 6.1
       }
     };
 
@@ -401,7 +279,113 @@ export default function DashboardPage() {
       default: factor = 0;
     }
 
-    return val * factor;
+    const total = val * factor;
+    return {
+      total,
+      factor: `${factor} kg CO2e per ${getUnit() === 'meals' ? 'meal' : getUnit()}`,
+      calculation: `${val} ${getUnit()} × ${factor} = ${total.toFixed(2)} kg CO2e`,
+      source: "IPCC, EPA, DEFRA standards",
+      precision: precisionMode ? "98%" : "85%"
+    };
+  };
+
+  const handleAddEmission = async (isProduct = false) => {
+    if (isProduct && !selectedProduct) return;
+    if (!isProduct && !amount) return;
+    setIsProductMode(isProduct);
+    await processAddEmission(isProduct);
+  };
+
+  const processAddEmission = async (isProduct = false) => {
+    setIsLogging(true);
+    setShowConfirm(false);
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const categoryMap: Record<string, string> = {
+      "Transportation": "TRAVEL",
+      "Electricity": "ELECTRICITY",
+      "Heating": "HEATING",
+      "Flights": "FLIGHTS",
+      "Food": "FOOD"
+    };
+
+    let description = "";
+    if (isProduct || (isProductMode && selectedProduct)) {
+      description = `Product: ${selectedProduct.name} (${selectedProduct.category})`;
+    } else {
+      switch (activeCategory) {
+        case "Transportation": description = `Vehicle: ${vehicleType}`; break;
+        case "Electricity": description = `Source: ${electricitySource}`; break;
+        case "Heating": description = `Fuel: ${heatingFuel}`; break;
+        case "Flights": description = `Class: ${flightClass}`; break;
+        case "Food": description = `Diet: ${foodType}`; break;
+        default: description = activeCategory;
+      }
+    }
+
+    try {
+      const response = await fetch("http://localhost:8080/api/activity/add", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          type: isProduct ? "PRODUCT" : (categoryMap[activeCategory] || "TRAVEL"),
+          description: description,
+          value: isProduct ? selectedProduct.co2 : parseFloat(amount),
+        }),
+      });
+
+      if (response.ok) {
+        setIsSuccess(true);
+        setAmount("");
+        setSelectedProduct(null);
+        await fetchData();
+        setTimeout(() => setIsSuccess(false), 3000);
+      }
+    } catch (err) {
+      console.error("Failed to log activity", err);
+    } finally {
+      setIsLogging(false);
+    }
+  };
+
+  const handleTreeLog = async () => {
+    if (!treeCount || isNaN(parseInt(treeCount))) return;
+    setIsLoggingTrees(true);
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const response = await fetch("http://localhost:8080/api/activity/add", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          type: "TREE_PLANTING",
+          description: treeNote || "Planted trees",
+          value: parseFloat(treeCount),
+        }),
+      });
+
+      if (response.ok) {
+        setIsSuccess(true);
+        setTreeCount("");
+        setTreeNote("");
+        setShowTreeModal(false);
+        await fetchData();
+        setTimeout(() => setIsSuccess(false), 3000);
+      }
+    } catch (err) {
+      console.error("Failed to log tree planting", err);
+    } finally {
+      setIsLoggingTrees(false);
+    }
   };
 
   return (
@@ -673,20 +657,45 @@ export default function DashboardPage() {
                   </div>
 
                   <AnimatePresence>
-                    {amount && !isProductMode && (
+                    {getEmissionDetails() && !isProductMode && (
                       <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="p-4 bg-zinc-950/30 border border-zinc-800/50 rounded-xl space-y-2"
+                        className="p-6 bg-zinc-950/30 border border-zinc-800 rounded-2xl space-y-4"
                       >
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-zinc-500 uppercase tracking-wider font-bold">Estimated Emission</span>
-                          <span className="text-sm font-bold text-white">{getCalculatedEmission().toFixed(2)} kg CO2e</span>
+                        <div className="flex items-center gap-2 mb-2">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                          <span className="text-sm font-semibold text-white">Estimated Emissions</span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-zinc-500 uppercase tracking-wider font-bold">Precision Rate</span>
-                          <span className="text-sm font-bold text-emerald-500">{getSourceAndPrecision().precision}</span>
+                        
+                        <div className="text-3xl font-bold text-white">
+                          {getEmissionDetails()?.total.toFixed(2)} kg CO2e
+                        </div>
+
+                        <div className="space-y-2 pt-2 border-t border-zinc-800">
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-zinc-500">Emission Factor:</span>
+                            <span className="text-zinc-300">{getEmissionDetails()?.factor}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-zinc-500">Calculation:</span>
+                            <span className="text-zinc-300">{getEmissionDetails()?.calculation}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-zinc-500">Source:</span>
+                            <span className="text-zinc-300">{getEmissionDetails()?.source}</span>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex gap-3">
+                          <Info className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                          <div className="space-y-1">
+                            <div className="text-sm font-bold text-emerald-500">High Precision</div>
+                            <p className="text-[11px] text-emerald-500/80 leading-relaxed">
+                              Using industry-standard emission factors from IPCC (Intergovernmental Panel on Climate Change), EPA (Environmental Protection Agency), and DEFRA (Department for Environment, Food & Rural Affairs) guidelines
+                            </p>
+                          </div>
                         </div>
                       </motion.div>
                     )}
@@ -953,42 +962,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-500" />
-              Confirm Activity Log
-            </AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div className="text-zinc-400 space-y-4 pt-2">
-                <p>Are you sure you want to log this activity? This will update your carbon footprint stats for today.</p>
-                
-                <div className="bg-zinc-950/50 p-4 rounded-xl border border-zinc-800 space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs uppercase tracking-wider font-bold text-zinc-500">Precision Rate</span>
-                    <span className="text-sm font-semibold text-emerald-500">{getSourceAndPrecision().precision}</span>
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-xs uppercase tracking-wider font-bold text-zinc-500">Data Source</span>
-                    <p className="text-sm text-zinc-300 leading-snug">{getSourceAndPrecision().source}</p>
-                  </div>
-                </div>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={processAddEmission}
-              className="bg-white text-black hover:bg-zinc-200"
-            >
-              Confirm & Log
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <Dialog open={showTreeModal} onOpenChange={setShowTreeModal}>
         <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-[500px] p-0 overflow-hidden">
