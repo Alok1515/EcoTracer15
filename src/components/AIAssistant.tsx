@@ -64,9 +64,13 @@ export function AIAssistant() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/chat", {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:8080/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({
           messages: [...messages, userMessage].map(m => ({
             role: m.role,
