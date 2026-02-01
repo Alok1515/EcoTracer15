@@ -1,0 +1,62 @@
+#!/bin/bash
+# Pre-commit hook to detect secrets before pushing to GitHub
+# Install: cp .githooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+set -e
+
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Patterns to detect common secrets
+SECRET_PATTERNS=(
+    'sk-or-v1-[A-Za-z0-9]{60,}'          # OpenRouter API key
+    'sk-[A-Za-z0-9]{40,}'                # Generic API key
+    'mongodb\+srv://[^:]*:[^@]*@'        # MongoDB URI with password
+    'password\s*=\s*[A-Za-z0-9]{5,}'     # password= with value
+    'api[_-]?key\s*=\s*[^\s]+'           # api_key= with value
+    'secret\s*=\s*[^\s]+'                # secret= with value
+    '-----BEGIN PRIVATE KEY-----'        # Private key
+    'Bearer\s+[A-Za-z0-9\._-]{40,}'      # JWT/Bearer tokens
+)
+
+FOUND_SECRETS=0
+
+for file in $STAGED_FILES; do
+    if [ -f "$file" ] && [ "$file" != ".env.example" ]; then
+        for pattern in "${SECRET_PATTERNS[@]}"; do
+            if grep -qP "$pattern" "$file"; then
+                echo -e "${RED}[SECURITY] Potential secret detected in $file${NC}"
+                echo -e "${YELLOW}Pattern: $pattern${NC}"
+                grep -nP "$pattern" "$file" | head -3 || true
+                FOUND_SECRETS=1
+            fi
+        done
+    fi
+done
+
+# Prevent files that should never be committed
+FORBIDDEN_FILES=('.env.local' '.env.production' '.env.*.local' '*.key' '*.pem')
+for file in $STAGED_FILES; do
+    for forbidden in "${FORBIDDEN_FILES[@]}"; do
+        if [[ "$file" == *"$forbidden"* ]]; then
+            echo -e "${RED}[SECURITY] Forbidden file staged: $file${NC}"
+            echo -e "${YELLOW}This file should not be committed. Check .gitignore.${NC}"
+            FOUND_SECRETS=1
+        fi
+    done
+done
+
+if [ $FOUND_SECRETS -eq 1 ]; then
+    echo ""
+    echo -e "${RED}[ABORT] Commit blocked due to potential secrets.${NC}"
+    echo -e "${YELLOW}If this is a false positive, use: git commit --no-verify${NC}"
+    echo -e "${YELLOW}But verify the content doesn't contain real secrets!${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}[OK] No secrets detected in staged files${NC}"
+exit 0
