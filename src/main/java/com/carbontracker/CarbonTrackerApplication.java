@@ -28,6 +28,9 @@ public class CarbonTrackerApplication {
                         case FLIGHTS -> 0.15;
                         case PRODUCT -> 1.0;
                         case TREE_PLANTING -> -21.0;
+                        case WASTE -> 0.12;
+                        case WATER -> 0.05;
+                        case SHOPPING -> 0.45;
                     };
                     repository.save(EmissionFactor.builder()
                             .category(type)
