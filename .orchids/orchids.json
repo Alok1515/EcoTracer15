@@ -1,8 +1,1 @@
-{
-  "projectId": "db0d61ad-297a-44b3-847a-c67101e6054d",
-  "createdAt": 1738407180000,
-  "startupCommands": [
-    "mvn spring-boot:run",
-    "bun run dev"
-  ]
-}
+
