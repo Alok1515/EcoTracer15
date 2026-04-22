@@ -25,7 +25,7 @@ public class CarbonTrackerApplication {
                         case ELECTRICITY -> 0.82;
                         case FOOD -> 0.50;
                         case HEATING -> 0.18;
-                        case FLIGHTS -> 0.15;
+                        case FLIGHTS -> 0.16;
                         case PRODUCT -> 1.0;
                         case TREE_PLANTING -> -21.0;
                         case WASTE -> 0.12;
